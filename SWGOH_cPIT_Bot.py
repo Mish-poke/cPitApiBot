@@ -4,12 +4,49 @@ import json
 
 from api_swgoh_help import api_swgoh_help, settings
 
+
 # Initialize data structures
 toons = {}
 skills = {}
 abilities = {}
 gear = {}
 
+# ######################################################################################################################
+def func_convertRelicLevel(
+    thisRelicLevel
+):
+
+    relicLevel = thisRelicLevel - 2
+    if relicLevel < 0:
+        relicLevel = 0
+
+    return relicLevel
+
+# ######################################################################################################################
+def func_getHighGearCount(
+    gearLevelThisToon, cntR12, cntR13
+):
+    if players[0]['roster'][thisUnit]['gear'] == 12:
+        cntR12 += 1
+    if players[0]['roster'][thisUnit]['gear'] == 13:
+        cntR13 += 1
+
+    return cntR12, cntR13
+
+# ######################################################################################################################
+def func_showMainToonInfo(
+    players,
+    thisUnit
+):
+    print(
+        "UNIT: " + players[0]['roster'][thisUnit]['defId'] + " " +
+        "Gear: " + str(players[0]['roster'][thisUnit]['gear']) + " " +
+        # "GP: " + str(players[0]['roster'][thisUnit]['gp']) + " " +
+        "RELIC: " + str(func_convertRelicLevel(int(players[0]['roster'][thisUnit]['relic']['currentTier'])))
+    )
+
+# ######################################################################################################################
+# ######################################################################################################################
 # Change the settings below
 creds = settings('Mishpoke', 'Hainkman.#10sh')
 client = api_swgoh_help(creds)
@@ -18,7 +55,8 @@ print(client)
 
 allycodes = [836434711]
 
-players = client.fetchPlayers(allycodes)
+
+# players = client.fetchPlayers(allycodes)
 
 payload = {}
 payload['allycodes'] = [allycodes]
@@ -33,27 +71,33 @@ print(result)
 # print(result[0])
 # print(result[0]['roster'][11]['name'])
 
+# ######################################################################################################################
+
 print(str(len(result[0]['roster'])))
 
 for guileMateKey in range(len(result[0]['roster'])):
+    print("### NEXT Guild Mate ###")
     print(result[0]['roster'][guileMateKey]['name'] + " ID: " + str(result[0]['roster'][guileMateKey]['allyCode']))
 
-    # payload = {}
-    # payload['allycodes'] = allycodes
-    # payload['language'] = "eng_us"
-    # payload['enums'] = True
-    # # Remove the project payload element to retrieve the player's entire roster
-    # payload['project'] = {"name": 1}
-
-    if result[0]['roster'][guileMateKey]['name'] == "Mishpoke":
+    ### limit analysis for one guild mate as of now ... remove line in case any guild mate should be used
+    if result[0]['roster'][guileMateKey]['name'] == "Bon Rick": #Mishpoke
         players = client.fetchPlayers(int(result[0]['roster'][guileMateKey]['allyCode']))
-        print(players)
+        # print(players)
+        # print(players[0]['roster'][0]['defId'])
+        cntR12 = 0
+        cntR13 = 0
 
-# for key, val in result:
-#     # print("# " + str(player))
-#     print("# " + str(player['name']))
-#     # print("Name: {2} ({0})".format(player['name'], player['allyCode']))
-#     # print("Name: {0} ".format(player['name']))
+        for thisUnit in range(len(players[0]['roster'])):
+            if players[0]['roster'][thisUnit]['combatType'] == 'CHARACTER':
+                if players[0]['roster'][thisUnit]['gear'] >= 12:
+                    cntR12, cntR13 = func_getHighGearCount(
+                        players[0]['roster'][thisUnit]['gear'],
+                        cntR12, cntR13
+                    )
+
+                    func_showMainToonInfo(players, thisUnit)
+
+        print(result[0]['roster'][guileMateKey]['name'] + " >>> R12 " + str(cntR12) + " // R13  " + str(cntR13) + " ")
 
 exit()
 
