@@ -24,10 +24,11 @@ dict_extraColumns = {
     "G13_R8": " G13_R8"
 }
 
-useAllGuildMates = True
-useThisGuildMateOnly ="Leonidas"
+useAllGuildMates = False
+useThisGuildMateOnly ="allowishus"
 
-allycodes = [642881742]# 438248876 788459779
+allycodes = [556142852]# 438248876 788459779
+# allowishus 556142852
 # Daroul 642881742
 # Mish 836434711
 # Guild of Light 788459779
@@ -293,57 +294,6 @@ def func_analyseThisGuildMateData(
                             thisGearOrRelicLevel,
                             thisExtraColumn)
 
-                    # #region fill Main Rooster DF
-                    # df_guildRooster.loc[
-                    #     dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #     guildMateName] = thisGearOrRelicLevel
-                    #
-                    # if thisGearOrRelicLevel[:1] == "R":
-                    #     if dict_extraColumns["G13"] in df_guildRooster.columns:
-                    #         df_guildRooster.loc[
-                    #             dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'], dict_extraColumns["G13"]] = \
-                    #             df_guildRooster.loc[dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #             dict_extraColumns["G13"]] + 1
-                    #     else:
-                    #         df_guildRooster[dict_extraColumns["G13"]] = 0
-                    #         df_guildRooster.loc[
-                    #             dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #             dict_extraColumns["G13"]] = 1
-                    #
-                    # if thisExtraColumn != "":
-                    #     # print("count this toon in this extra column: " + str(thisExtraColumn) )
-                    #     if thisExtraColumn in df_guildRooster.columns:
-                    #         # print("Column is there already")
-                    #         # print("Current value: " + str( df_guildRooster.loc[
-                    #         #     dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #         #     thisExtraColumn] ))
-                    #         df_guildRooster.loc[
-                    #             dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #             thisExtraColumn] = df_guildRooster.loc[
-                    #             dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #             thisExtraColumn] + 1
-                    #     else:
-                    #         # print("NEW column")
-                    #         df_guildRooster[thisExtraColumn] = 0
-                    #         df_guildRooster.loc[
-                    #             dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #             thisExtraColumn] = 1
-                    # #endregion
-
-                    #region fill GL Rooster
-                    # if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_gls:
-                    #     df_glsOnly.loc[
-                    #         dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #         guildMateName] = thisGearOrRelicLevel
-                    #endregion
-
-                    #region fill critical toons
-                    # if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_criticalToons:
-                    #     df_criticalToons.loc[
-                    #         dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                    #         guildMateName] = thisGearOrRelicLevel
-                    #endregion
-
                     cntR12, cntR13 = func_getHighGearCount(
                         dict_GuildMateDetails, thisUnit,
                         cntR12, cntR13
@@ -453,6 +403,17 @@ def func_resortColumns(
     return df_guildMasterFile
 
 # ######################################################################################################################
+def func_addMissingColumnsForGearCount(
+    thisDF
+):
+    for thisElement in dict_extraColumns:
+        if dict_extraColumns[thisElement] not in thisDF.columns:
+            print("up, this column is missing, no toon in such category: " + thisElement)
+            thisDF[ dict_extraColumns[thisElement]] = 0
+
+    return thisDF
+
+# ######################################################################################################################
 def func_exportGuildDataIntoFiles(
     guildName,
     dict_guildRooster,
@@ -460,10 +421,13 @@ def func_exportGuildDataIntoFiles(
     df_glsOnly,
     df_criticalToons
 ):
-    # df_guildMasterFile = func_resortColumns(df_guildMasterFile, dict_guildRooster)
-    # print(df_guildMasterFile.head(3))
+    df_guildMasterFile = func_addMissingColumnsForGearCount(df_guildMasterFile)
+    df_glsOnly = func_addMissingColumnsForGearCount(df_glsOnly)
+    df_criticalToons = func_addMissingColumnsForGearCount(df_criticalToons)
+
     df_guildMasterFile = df_guildMasterFile.sort_index(axis=1)
-    # print(df_guildMasterFile.head(3))
+    df_glsOnly = df_glsOnly.sort_index(axis=1)
+    df_criticalToons = df_criticalToons.sort_index(axis=1)
 
     df_guildMasterFile.to_csv("GUILD_ROOSTER_"+guildName+".csv", sep=";")
     df_glsOnly.to_csv("GUILD_ROOSTER_GLs_"+guildName+".csv", sep=";")

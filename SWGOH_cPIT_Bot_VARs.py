@@ -303,7 +303,7 @@ listAllToons = [
     'Hoth Rebel Soldier',
     'Asajj Ventress',
     'General Grievous',
-    'Chirrut ÃŽmwe',
+    'Chirrut Îmwe',
     'Juhani',
     'Kanan Jarrus',
     'Rose Tico',
