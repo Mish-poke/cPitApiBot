@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 
+import os
 import json
 import pandas as pd
 from SWGOH_cPIT_Bot_VARs import *
 from api_swgoh_help import api_swgoh_help, settings
+
+swgoh_user = os.getenv('swgoh_user')
+swgoh_secret = os.getenv('swgoh_secret')
 
 MASTER_ExportGuildData = True
 df_guildMasterFile = pd.DataFrame()
@@ -60,7 +64,7 @@ skills = {}
 abilities = {}
 gear = {}
 
-creds = settings('Mishpoke', 'Hainkman.#10sh')
+creds = settings(swgoh_user, swgoh_secret)
 client = api_swgoh_help(creds)
 
 
