@@ -10,9 +10,7 @@ swgoh_user = os.getenv('swgoh_user')
 swgoh_secret = os.getenv('swgoh_secret')
 
 MASTER_ExportGuildData = True
-df_guildMasterFile = pd.DataFrame()
-df_glsOnly = pd.DataFrame()
-df_criticalToons = pd.DataFrame()
+exportDataframesInCSV = False
 
 flag_all = 'all toons'
 flag_gls = 'gls only'
@@ -28,15 +26,23 @@ dict_extraColumns = {
     "G13_R8": " G13_R8"
 }
 
-useAllGuildMates = False
-useThisGuildMateOnly ="allowishus"
+#region COMPARISON ... turn ON / OFF player or guild comparison
+dict_tasks = {
+    "task_compare_guilds": 0,
+    "task_compare_players": 0,
+    "task_exportPlayersData": 1,
+    "task_exportAllGuildData" : 0
+}
+allyCodes = [556142852, 637681396]
 
-allycodes = [556142852]# 438248876 788459779
 # allowishus 556142852
 # Daroul 642881742
 # Mish 836434711
 # Guild of Light 788459779
 # ALLiΔNCE KØTØR 637681396
+#endregion
+
+
 
 minGearLevelForAnalysis = 1
 
@@ -150,17 +156,18 @@ def func_showMainToonInfo(
 
 # ######################################################################################################################
 def func_getGuildData(
+    thisAllyCode
 ):
-    print("START func_getGuildData")
+    print("\n#############################################\nSTART func_getGuildData for allycode " + str(thisAllyCode))
     payload = {}
-    payload['allycodes'] = [allycodes]
+    payload['allycodes'] = [thisAllyCode]
     payload['language'] = "eng_us"
     payload['enums'] = True
     result = client.fetchGuilds(payload)
 
-
     guildName = result[0]['name']
-    print(result)
+
+    print("guildName " + guildName)
 
     print("ENDE func_getGuildData")
 
@@ -194,13 +201,14 @@ def func_loopGuildRooster(
     dict_guild,
     df_guildRooster,
     df_glsOnly,
-    df_criticalToons
+    df_criticalToons,
+    thisAllyCode
 ):
     print(str(len(dict_guild[0]['roster'])))
 
     for guileMateKey in range(len(dict_guild[0]['roster'])):
         df_guildRooster, df_glsOnly, df_criticalToons = func_analyseThisGuildMateData(
-            dict_guild, guileMateKey, df_guildRooster, df_glsOnly, df_criticalToons)
+            dict_guild, guileMateKey, df_guildRooster, df_glsOnly, df_criticalToons, thisAllyCode)
 
     return df_guildRooster, df_glsOnly
 
@@ -244,13 +252,18 @@ def func_analyseThisGuildMateData(
     guileMateKey,
     df_guildRooster,
     df_glsOnly,
-    df_criticalToons
+    df_criticalToons,
+    thisAllyCode
 ):
     guildMateName = str(dict_guild[0]['roster'][guileMateKey]['name'])
+    guildMateAllyCode = str(dict_guild[0]['roster'][guileMateKey]['allyCode'])
 
     ### limit analysis for one guild mate as of now ... remove line in case any guild mate should be used
-    if useAllGuildMates or guildMateName == useThisGuildMateOnly:  # Mishpoke
-        print("### NEXT Guild Mate ###")
+    if (
+            (dict_tasks["task_exportPlayersData"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
+            dict_tasks["task_exportAllGuildData"]
+    ):
+        print("### func_analyseThisGuildMateData >>> NEXT Guild Mate ###")
         print(dict_guild[0]['roster'][guileMateKey]['name'] + " ID: " + str(
             dict_guild[0]['roster'][guileMateKey]['allyCode']))
 
@@ -366,6 +379,7 @@ def func_fillDetailsForThisDataframe(
 def func_prepareDataframeWithAllToons(
     thisDF,
     dict_guild,
+    thisAllyCode,
     flag_whatDF,
     logGuildMateDetails
 ):
@@ -379,7 +393,17 @@ def func_prepareDataframeWithAllToons(
         thisDF = pd.DataFrame(index=list_criticalToons)
 
     for guileMateKey in range(len(dict_guild[0]['roster'])):
-        if useAllGuildMates or dict_guild[0]['roster'][guileMateKey]['name'] == useThisGuildMateOnly:
+        if \
+            dict_tasks["task_compare_guilds"] or \
+            dict_tasks["task_exportAllGuildData"] or \
+            (
+                    dict_tasks["task_exportPlayersData"] and
+                    dict_guild[0]['roster'][guileMateKey]['allyCode'] == thisAllyCode
+            ) or \
+            (
+                    dict_tasks["task_compare_players"] and
+                    dict_guild[0]['roster'][guileMateKey]['allyCode'] == thisAllyCode
+        ):
             if logGuildMateDetails:
                 print("### ADD NEXT Guild Mate ###")
                 print(
@@ -412,7 +436,7 @@ def func_addMissingColumnsForGearCount(
 ):
     for thisElement in dict_extraColumns:
         if dict_extraColumns[thisElement] not in thisDF.columns:
-            print("up, this column is missing, no toon in such category: " + thisElement)
+            # print("ups, this column is missing, no toon in such category: " + thisElement)
             thisDF[ dict_extraColumns[thisElement]] = 0
 
     return thisDF
@@ -420,7 +444,8 @@ def func_addMissingColumnsForGearCount(
 # ######################################################################################################################
 def func_exportGuildDataIntoFiles(
     guildName,
-    dict_guildRooster,
+    dict_guild,
+    thisAllyCode,
     df_guildMasterFile,
     df_glsOnly,
     df_criticalToons
@@ -433,11 +458,18 @@ def func_exportGuildDataIntoFiles(
     df_glsOnly = df_glsOnly.sort_index(axis=1)
     df_criticalToons = df_criticalToons.sort_index(axis=1)
 
-    df_guildMasterFile.to_csv("GUILD_ROOSTER_"+guildName+".csv", sep=";")
-    df_glsOnly.to_csv("GUILD_ROOSTER_GLs_"+guildName+".csv", sep=";")
-    df_criticalToons.to_csv("GUILD_ROOSTER_ImportantToons_"+guildName+".csv", sep=";")
+    if exportDataframesInCSV:
+        df_guildMasterFile.to_csv("GUILD_ROOSTER_"+guildName+".csv", sep=";")
+        df_glsOnly.to_csv("GUILD_ROOSTER_GLs_"+guildName+".csv", sep=";")
+        df_criticalToons.to_csv("GUILD_ROOSTER_ImportantToons_"+guildName+".csv", sep=";")
 
-    fileName = "GUILD_ROOSTER_"+guildName+".xlsx"
+    if dict_tasks["task_exportAllGuildData"]:
+        fileName = "GUILD_ROOSTER_"+guildName+".xlsx"
+
+    if dict_tasks["task_exportPlayersData"]:
+        for guileMateKey in range(len(dict_guild[0]['roster'])):
+            if dict_guild[0]['roster'][guileMateKey]['allyCode'] == thisAllyCode:
+                fileName = "PLAYER_ROOSTER_"+str(dict_guild[0]['roster'][guileMateKey]['name'])+".xlsx"
     # writer = pd.ExcelWriter(fileName, engine='xlsxwriter')
 
     with pd.ExcelWriter(fileName) as writer:
@@ -446,21 +478,71 @@ def func_exportGuildDataIntoFiles(
         df_criticalToons.to_excel(writer, sheet_name='ImportantToons')
 
 # ######################################################################################################################
+def func_doAllAroundThisAllyCode(
+    thisAllyCode
+):
+    df_guildMasterFile = pd.DataFrame()
+    df_glsOnly = pd.DataFrame()
+    df_criticalToons = pd.DataFrame()
+
+    dict_guildRooster, guildName = func_getGuildData(thisAllyCode)
+
+    if MASTER_ExportGuildData:
+        df_guildMasterFile = func_prepareDataframeWithAllToons(
+            df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_all, True)
+
+        df_glsOnly = func_prepareDataframeWithAllToons(
+            df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_gls, False)
+
+        df_criticalToons = func_prepareDataframeWithAllToons(
+            df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_critical, False)
+
+    # dict_cPitTeamsPerGuildMate = func_prepareMasterTeamDictWithAllDataPerGuildMate(dict_guildRooster)
+    df_guildMasterFile, df_glsOnly = func_loopGuildRooster(
+        dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons, thisAllyCode)
+
+    if MASTER_ExportGuildData:
+        func_exportGuildDataIntoFiles(
+            guildName, dict_guildRooster, thisAllyCode,
+            df_guildMasterFile, df_glsOnly, df_criticalToons
+        )
+
+
+# ######################################################################################################################
+def func_checkIfAllAllyCodesAreNeeded(
+):
+    # guildnames = list(3)
+    guildnames = [None] * len(allyCodes)
+    cnt = 0
+    if dict_tasks["task_compare_guilds"] or dict_tasks["task_exportAllGuildData"]:
+        for thisAllyCode in allyCodes:
+            dict_guildRooster, thisGuildName = func_getGuildData(thisAllyCode)
+            guildnames[cnt] = thisGuildName
+            cnt+=1
+
+
+        if guildnames[0] == guildnames[1]:
+            print("\n###### both allycodes belong to the same guild. no double export needed")
+            print(allyCodes)
+            allyCodes.remove(allyCodes[1])
+            print("remove the second ally code, its not needed")
+            print(allyCodes)
+
+        # allyCodes = func_clearAllyCodesToRemoveDoubleGuilds(guildnames)
+        # TODO
+        # one could make a function to filte through xzy guild names, just in case the script will be extended, so that
+        # it will be possible to compare and or export many many different players or guilds. for now we remain with two
+
+    return allyCodes
+
 # ######################################################################################################################
 # ######################################################################################################################
+# ######################################################################################################################
 
-dict_guildRooster, guildName = func_getGuildData()
+allyCodes = func_checkIfAllAllyCodesAreNeeded()
 
-if MASTER_ExportGuildData:
-    df_guildMasterFile = func_prepareDataframeWithAllToons(df_guildMasterFile, dict_guildRooster, flag_all, True)
-    df_glsOnly = func_prepareDataframeWithAllToons(df_guildMasterFile, dict_guildRooster, flag_gls, False)
-    df_criticalToons = func_prepareDataframeWithAllToons(df_guildMasterFile, dict_guildRooster, flag_critical, False)
-
-dict_cPitTeamsPerGuildMate = func_prepareMasterTeamDictWithAllDataPerGuildMate(dict_guildRooster)
-df_guildMasterFile, df_glsOnly = func_loopGuildRooster(dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons)
-
-if MASTER_ExportGuildData:
-    func_exportGuildDataIntoFiles(guildName, dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons)
+for thisAllyCode in allyCodes:
+    func_doAllAroundThisAllyCode(thisAllyCode)
 
 
 # dict_listOfAllToons = func_createListOfPossibleToons()
