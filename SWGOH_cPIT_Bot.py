@@ -9,7 +9,6 @@ from api_swgoh_help import api_swgoh_help, settings
 swgoh_user = os.getenv('swgoh_user')
 swgoh_secret = os.getenv('swgoh_secret')
 
-MASTER_ExportGuildData = True
 exportDataframesInCSV = False
 
 flag_all = 'all toons'
@@ -28,12 +27,14 @@ dict_extraColumns = {
 
 #region COMPARISON ... turn ON / OFF player or guild comparison
 dict_tasks = {
-    "task_compare_guilds": 0,
+    "task_compare_guilds": 1,
     "task_compare_players": 0,
-    "task_exportPlayersData": 1,
+    "task_exportPlayersData": 0,
     "task_exportAllGuildData" : 0
 }
-allyCodes = [556142852, 637681396]
+allyCodes = [642881742, 637681396]
+guildNames = [None] * len(allyCodes)
+playerNames =  [None] * len(allyCodes)
 
 # allowishus 556142852
 # Daroul 642881742
@@ -261,11 +262,16 @@ def func_analyseThisGuildMateData(
     ### limit analysis for one guild mate as of now ... remove line in case any guild mate should be used
     if (
             (dict_tasks["task_exportPlayersData"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
-            dict_tasks["task_exportAllGuildData"]
+            (dict_tasks["task_compare_players"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
+            dict_tasks["task_exportAllGuildData"] or \
+            dict_tasks["task_compare_guilds"]
     ):
         print("### func_analyseThisGuildMateData >>> NEXT Guild Mate ###")
         print(dict_guild[0]['roster'][guileMateKey]['name'] + " ID: " + str(
             dict_guild[0]['roster'][guileMateKey]['allyCode']))
+
+        if str(thisAllyCode) == str(guildMateAllyCode):
+            playerNames[allyCodes.index(thisAllyCode)] = dict_guild[0]['roster'][guileMateKey]['name']
 
         dict_GuildMateDetails = client.fetchPlayers(int(dict_guild[0]['roster'][guileMateKey]['allyCode']))
 
@@ -437,7 +443,7 @@ def func_addMissingColumnsForGearCount(
     for thisElement in dict_extraColumns:
         if dict_extraColumns[thisElement] not in thisDF.columns:
             # print("ups, this column is missing, no toon in such category: " + thisElement)
-            thisDF[ dict_extraColumns[thisElement]] = 0
+            thisDF[dict_extraColumns[thisElement]] = 0
 
     return thisDF
 
@@ -450,14 +456,6 @@ def func_exportGuildDataIntoFiles(
     df_glsOnly,
     df_criticalToons
 ):
-    df_guildMasterFile = func_addMissingColumnsForGearCount(df_guildMasterFile)
-    df_glsOnly = func_addMissingColumnsForGearCount(df_glsOnly)
-    df_criticalToons = func_addMissingColumnsForGearCount(df_criticalToons)
-
-    df_guildMasterFile = df_guildMasterFile.sort_index(axis=1)
-    df_glsOnly = df_glsOnly.sort_index(axis=1)
-    df_criticalToons = df_criticalToons.sort_index(axis=1)
-
     if exportDataframesInCSV:
         df_guildMasterFile.to_csv("GUILD_ROOSTER_"+guildName+".csv", sep=";")
         df_glsOnly.to_csv("GUILD_ROOSTER_GLs_"+guildName+".csv", sep=";")
@@ -477,51 +475,18 @@ def func_exportGuildDataIntoFiles(
         df_glsOnly.to_excel(writer, sheet_name='GUILD_GLs')
         df_criticalToons.to_excel(writer, sheet_name='ImportantToons')
 
-# ######################################################################################################################
-def func_doAllAroundThisAllyCode(
-    thisAllyCode
-):
-    df_guildMasterFile = pd.DataFrame()
-    df_glsOnly = pd.DataFrame()
-    df_criticalToons = pd.DataFrame()
-
-    dict_guildRooster, guildName = func_getGuildData(thisAllyCode)
-
-    if MASTER_ExportGuildData:
-        df_guildMasterFile = func_prepareDataframeWithAllToons(
-            df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_all, True)
-
-        df_glsOnly = func_prepareDataframeWithAllToons(
-            df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_gls, False)
-
-        df_criticalToons = func_prepareDataframeWithAllToons(
-            df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_critical, False)
-
-    # dict_cPitTeamsPerGuildMate = func_prepareMasterTeamDictWithAllDataPerGuildMate(dict_guildRooster)
-    df_guildMasterFile, df_glsOnly = func_loopGuildRooster(
-        dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons, thisAllyCode)
-
-    if MASTER_ExportGuildData:
-        func_exportGuildDataIntoFiles(
-            guildName, dict_guildRooster, thisAllyCode,
-            df_guildMasterFile, df_glsOnly, df_criticalToons
-        )
-
 
 # ######################################################################################################################
 def func_checkIfAllAllyCodesAreNeeded(
 ):
-    # guildnames = list(3)
-    guildnames = [None] * len(allyCodes)
     cnt = 0
     if dict_tasks["task_compare_guilds"] or dict_tasks["task_exportAllGuildData"]:
         for thisAllyCode in allyCodes:
             dict_guildRooster, thisGuildName = func_getGuildData(thisAllyCode)
-            guildnames[cnt] = thisGuildName
+            guildNames[cnt] = thisGuildName
             cnt+=1
 
-
-        if guildnames[0] == guildnames[1]:
+        if guildNames[0] == guildNames[1]:
             print("\n###### both allycodes belong to the same guild. no double export needed")
             print(allyCodes)
             allyCodes.remove(allyCodes[1])
@@ -533,16 +498,154 @@ def func_checkIfAllAllyCodesAreNeeded(
         # one could make a function to filte through xzy guild names, just in case the script will be extended, so that
         # it will be possible to compare and or export many many different players or guilds. for now we remain with two
 
-    return allyCodes
+
+# ######################################################################################################################
+def func_doAllAroundThisAllyCode(
+    thisAllyCode
+):
+    df_guildMasterFile = pd.DataFrame()
+    df_glsOnly = pd.DataFrame()
+    df_criticalToons = pd.DataFrame()
+
+    dict_guildRooster, guildName = func_getGuildData(thisAllyCode)
+
+    df_guildMasterFile = func_prepareDataframeWithAllToons(
+        df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_all, True)
+
+    df_glsOnly = func_prepareDataframeWithAllToons(
+        df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_gls, False)
+
+    df_criticalToons = func_prepareDataframeWithAllToons(
+        df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_critical, False)
+
+    # dict_cPitTeamsPerGuildMate = func_prepareMasterTeamDictWithAllDataPerGuildMate(dict_guildRooster)
+    df_guildMasterFile, df_glsOnly = func_loopGuildRooster(
+        dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons, thisAllyCode)
+
+    df_guildMasterFile = func_fillMissingColumnsToHarmonizeLayout(df_guildMasterFile)
+    df_glsOnly = func_fillMissingColumnsToHarmonizeLayout(df_glsOnly)
+    df_criticalToons = func_fillMissingColumnsToHarmonizeLayout(df_criticalToons)
+
+    if dict_tasks["task_exportPlayersData"] or dict_tasks["task_exportAllGuildData"]:
+        func_exportGuildDataIntoFiles(
+            guildName, dict_guildRooster, thisAllyCode,
+            df_guildMasterFile, df_glsOnly, df_criticalToons
+        )
+
+    return df_guildMasterFile, df_glsOnly, df_criticalToons
+
+# ######################################################################################################################
+def func_fillMissingColumnsToHarmonizeLayout(
+    thisDF
+):
+    thisDF = func_addMissingColumnsForGearCount(thisDF)
+
+    thisDF = thisDF.sort_index(axis=1)
+
+    return thisDF
+
+# ######################################################################################################################
+def func_letsCompareTheFinalDatasets(
+    listOf_guildMasterFile,
+    listOf_glsOnly,
+    listOf_criticalToons
+):
+    df_compared_guildMasterFile = func_createNewDataframeWithMainColumnsOnly(listOf_guildMasterFile, "guildMasterFile")
+    df_compared_glsOnly = func_createNewDataframeWithMainColumnsOnly(listOf_glsOnly, "glsOnly")
+    df_compared_criticalToons = func_createNewDataframeWithMainColumnsOnly(listOf_criticalToons, "criticalToons")
+
+    # TODO >> check if both array places are in use
+    if dict_tasks["task_compare_guilds"]:
+        fileName = "COMPARISON_" + guildNames[0] +" vs " + guildNames[1] + ".xlsx"
+
+    if dict_tasks["task_compare_players"]:
+        fileName = "COMPARISON_" + playerNames[0] +" vs " + playerNames[1] + ".xlsx"
+
+    with pd.ExcelWriter(fileName) as writer:
+        df_compared_guildMasterFile.to_excel(writer, sheet_name='GUILD_ALL')
+        df_compared_glsOnly.to_excel(writer, sheet_name='GUILD_GLs')
+        df_compared_criticalToons.to_excel(writer, sheet_name='ImportantToons')
+
+# ######################################################################################################################
+def func_getFirstDataFrameColumnNameSuffix(
+    flag_id
+):
+    if dict_tasks["task_exportPlayersData"] or dict_tasks["task_compare_players"]:
+        suffix = playerNames[flag_id]
+    else:
+        suffix = guildNames[flag_id]
+
+    return suffix
+
+# ######################################################################################################################
+def func_renameColumnsAndAddSuffix(
+    thisDF,
+    suffix
+):
+    thisDF = thisDF[[
+        dict_extraColumns["G11"],
+        dict_extraColumns["G12"],
+        dict_extraColumns["G13"],
+        dict_extraColumns["G13_R123"],
+        dict_extraColumns["G13_R456"],
+        dict_extraColumns["G13_R7"],
+        dict_extraColumns["G13_R8"],
+    ]].copy()
+
+    thisDF.rename(columns=
+    {
+        dict_extraColumns["G11"]: dict_extraColumns["G11"] + " " + suffix,
+        dict_extraColumns["G12"]: dict_extraColumns["G12"] + " " + suffix,
+        dict_extraColumns["G13"]: dict_extraColumns["G13"] + " " + suffix,
+        dict_extraColumns["G13_R123"]: dict_extraColumns["G13_R123"] + " " + suffix,
+        dict_extraColumns["G13_R456"]: dict_extraColumns["G13_R456"] + " " + suffix,
+        dict_extraColumns["G13_R7"]: dict_extraColumns["G13_R7"] + " " + suffix,
+        dict_extraColumns["G13_R8"]: dict_extraColumns["G13_R8"] + " " + suffix
+    }, inplace=True)
+
+    return thisDF
+
+# ######################################################################################################################
+def func_createNewDataframeWithMainColumnsOnly(
+    thisDF,
+    fileName
+):
+    df_guild1 = thisDF[0]
+    df_guild2 = thisDF[1]
+
+    df_guild1.to_csv("df_guild1_BEFORE" + ".csv", sep=";")
+    suffix = func_getFirstDataFrameColumnNameSuffix(0)
+    df_guild1 = func_renameColumnsAndAddSuffix(df_guild1, suffix)
+    df_guild1.to_csv("df_guild1" + ".csv", sep=";")
+
+    suffix = func_getFirstDataFrameColumnNameSuffix(1)
+    df_guild2 = func_renameColumnsAndAddSuffix(df_guild2, suffix)
+
+    mergedDF = pd.concat([df_guild1, df_guild2], axis=1)
+    mergedDF.to_csv(fileName+".csv", sep=";")
+
+    return mergedDF
 
 # ######################################################################################################################
 # ######################################################################################################################
 # ######################################################################################################################
 
-allyCodes = func_checkIfAllAllyCodesAreNeeded()
+listOf_guildMasterFile = list()
+listOf_glsOnly = list()
+listOf_criticalToons = list()
+
+func_checkIfAllAllyCodesAreNeeded()
 
 for thisAllyCode in allyCodes:
-    func_doAllAroundThisAllyCode(thisAllyCode)
+    df_guildMasterFile, df_glsOnly, df_criticalToons = func_doAllAroundThisAllyCode(thisAllyCode)
 
+    listOf_guildMasterFile.append(df_guildMasterFile)
+    listOf_glsOnly.append(df_glsOnly)
+    listOf_criticalToons.append(df_criticalToons)
 
 # dict_listOfAllToons = func_createListOfPossibleToons()
+
+if len(allyCodes) > 1:
+    func_letsCompareTheFinalDatasets(
+        listOf_guildMasterFile, listOf_glsOnly, listOf_criticalToons)
+
