@@ -6,6 +6,8 @@ import pandas as pd
 from SWGOH_cPIT_Bot_VARs import *
 from api_swgoh_help import api_swgoh_help, settings
 
+subFolderForFileExport = 'file-exports'
+
 swgoh_user = os.getenv('swgoh_user')
 swgoh_secret = os.getenv('swgoh_secret')
 
@@ -16,9 +18,9 @@ flag_gls = 'gls only'
 flag_critical = 'important toon only'
 
 dict_extraColumns = {
-    "G11": " G11",
-    "G12": " G12",
-    "G13": " G13",
+    "G1-G11": " TOTAL G1 - G11",
+    "G12": " TOTAL G12",
+    "G13": " TOTAL G13",
     "G13_R123": " G13_R123",
     "G13_R456": " G13_R456",
     "G13_R7": " G13_R7",
@@ -30,11 +32,14 @@ dict_tasks = {
     "task_compare_guilds": 1,
     "task_compare_players": 0,
     "task_exportPlayersData": 0,
-    "task_exportAllGuildData" : 0
+    "task_exportAllGuildData" : 0,
+    "task_ignoreMissingGuildMates": 1
 }
-allyCodes = [642881742, 637681396]
+allyCodes = [836434711, 755235894] #247174967
 guildNames = [None] * len(allyCodes)
 playerNames =  [None] * len(allyCodes)
+
+useOnlyThisAmountOfGuildMates = 3
 
 # allowishus 556142852
 # Daroul 642881742
@@ -166,13 +171,36 @@ def func_getGuildData(
     payload['enums'] = True
     result = client.fetchGuilds(payload)
 
+    print(result)
+
     guildName = result[0]['name']
+
+    func_createFreshGuildNameDict(guildName, result)
 
     print("guildName " + guildName)
 
     print("ENDE func_getGuildData")
 
     return result, guildName
+
+# ######################################################################################################################
+def func_createFreshGuildNameDict(
+    guildName,
+    dict_guild
+):
+    if MASTER_createFreshGuildDict:
+        print("dict_" + guildName + " = {")
+        for guileMateKey in range(len(dict_guild[0]['roster'])):
+            print(
+                "'" + str(dict_guild[0]['roster'][guileMateKey]['name']) + "'" + ": " +
+                "'" + "1" +"'" + ",")
+            if guildName == 'Spartas 300':
+                if dict_guild[0]['roster'][guileMateKey]['name'] not in dict_Spartas:
+                    print(
+                        "ATTENTION NEW GuildMate or changed name for: " +
+                        str(dict_guild[0]['roster'][guileMateKey]['name'])
+                    )
+        print(" }")
 
 
 # ######################################################################################################################
@@ -207,9 +235,13 @@ def func_loopGuildRooster(
 ):
     print(str(len(dict_guild[0]['roster'])))
 
+    thisGuildMateNumber = 0
     for guileMateKey in range(len(dict_guild[0]['roster'])):
-        df_guildRooster, df_glsOnly, df_criticalToons = func_analyseThisGuildMateData(
-            dict_guild, guileMateKey, df_guildRooster, df_glsOnly, df_criticalToons, thisAllyCode)
+        thisGuildMateNumber += 1
+
+        if thisGuildMateNumber <= useOnlyThisAmountOfGuildMates:
+            df_guildRooster, df_glsOnly, df_criticalToons = func_analyseThisGuildMateData(
+                dict_guild, guileMateKey, df_guildRooster, df_glsOnly, df_criticalToons, thisAllyCode)
 
     return df_guildRooster, df_glsOnly
 
@@ -227,9 +259,6 @@ def func_getGearLevelOrRelicLevel(
 def func_getExtraColumnForThisToon(
     thisGearOrRelicLevel
 ):
-    if thisGearOrRelicLevel == "G11":
-        return dict_extraColumns["G11"]
-
     if thisGearOrRelicLevel == "G12":
         return dict_extraColumns["G12"]
 
@@ -245,7 +274,24 @@ def func_getExtraColumnForThisToon(
     if thisGearOrRelicLevel == "R8":
         return dict_extraColumns["G13_R8"]
 
+    return dict_extraColumns["G1-G11"]
+
     return ""
+
+# ######################################################################################################################
+def func_checkIfThisGuildMateShouldBeUsed(
+    guildMateName
+):
+    if guildMateName in dict_Spartas:
+        if (
+                (dict_tasks["task_ignoreMissingGuildMates"] == 1 and str(dict_Spartas[guildMateName]) == "1") or
+                (dict_tasks["task_ignoreMissingGuildMates"] == 0)
+        ):
+            return True
+        else:
+            return False
+    else:
+        return True
 
 # ######################################################################################################################
 def func_analyseThisGuildMateData(
@@ -259,12 +305,17 @@ def func_analyseThisGuildMateData(
     guildMateName = str(dict_guild[0]['roster'][guileMateKey]['name'])
     guildMateAllyCode = str(dict_guild[0]['roster'][guileMateKey]['allyCode'])
 
+    fineToUseThisGuildMate = func_checkIfThisGuildMateShouldBeUsed(guildMateName)
+
     ### limit analysis for one guild mate as of now ... remove line in case any guild mate should be used
     if (
-            (dict_tasks["task_exportPlayersData"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
-            (dict_tasks["task_compare_players"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
-            dict_tasks["task_exportAllGuildData"] or \
-            dict_tasks["task_compare_guilds"]
+            fineToUseThisGuildMate and \
+            (
+                (dict_tasks["task_exportPlayersData"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
+                (dict_tasks["task_compare_players"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
+                dict_tasks["task_exportAllGuildData"] or \
+                dict_tasks["task_compare_guilds"]
+            )
     ):
         print("### func_analyseThisGuildMateData >>> NEXT Guild Mate ###")
         print(dict_guild[0]['roster'][guileMateKey]['name'] + " ID: " + str(
@@ -281,52 +332,52 @@ def func_analyseThisGuildMateData(
         cntR13 = 0
 
         for thisUnit in range(len(dict_GuildMateDetails[0]['roster'])):
-            if dict_GuildMateDetails[0]['roster'][thisUnit]['combatType'] == 'CHARACTER':
-                # print("'" + dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] + "',")
-                if dict_GuildMateDetails[0]['roster'][thisUnit]['gear'] >= minGearLevelForAnalysis:
-                    thisGearOrRelicLevel = func_getGearLevelOrRelicLevel(dict_GuildMateDetails, thisUnit)
-                    thisExtraColumn = func_getExtraColumnForThisToon(thisGearOrRelicLevel)
+            # if dict_GuildMateDetails[0]['roster'][thisUnit]['combatType'] == 'CHARACTER':
+            # print("'" + dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] + "',")
+            if dict_GuildMateDetails[0]['roster'][thisUnit]['gear'] >= minGearLevelForAnalysis:
+                thisGearOrRelicLevel = func_getGearLevelOrRelicLevel(dict_GuildMateDetails, thisUnit)
+                thisExtraColumn = func_getExtraColumnForThisToon(thisGearOrRelicLevel)
 
-                    # print('### ' + str( dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey']))
-                    # print("thisGearOrRelicLevel: " + str(thisGearOrRelicLevel))
-                    # print("thisExtraColumn: " + str(thisExtraColumn))
+                # print('### ' + str( dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey']))
+                # print("thisGearOrRelicLevel: " + str(thisGearOrRelicLevel))
+                # print("thisExtraColumn: " + str(thisExtraColumn))
 
-                    df_guildRooster = func_fillDetailsForThisDataframe(
-                        df_guildRooster,
+                df_guildRooster = func_fillDetailsForThisDataframe(
+                    df_guildRooster,
+                    dict_GuildMateDetails,
+                    guildMateName,
+                    thisUnit,
+                    thisGearOrRelicLevel,
+                    thisExtraColumn)
+
+                if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_gls:
+                    df_glsOnly = func_fillDetailsForThisDataframe(
+                        df_glsOnly,
                         dict_GuildMateDetails,
                         guildMateName,
                         thisUnit,
                         thisGearOrRelicLevel,
                         thisExtraColumn)
 
-                    if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_gls:
-                        df_glsOnly = func_fillDetailsForThisDataframe(
-                            df_glsOnly,
-                            dict_GuildMateDetails,
-                            guildMateName,
-                            thisUnit,
-                            thisGearOrRelicLevel,
-                            thisExtraColumn)
+                if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_criticalToons:
+                    df_criticalToons = func_fillDetailsForThisDataframe(
+                        df_criticalToons,
+                        dict_GuildMateDetails,
+                        guildMateName,
+                        thisUnit,
+                        thisGearOrRelicLevel,
+                        thisExtraColumn)
 
-                    if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_criticalToons:
-                        df_criticalToons = func_fillDetailsForThisDataframe(
-                            df_criticalToons,
-                            dict_GuildMateDetails,
-                            guildMateName,
-                            thisUnit,
-                            thisGearOrRelicLevel,
-                            thisExtraColumn)
-
-                    cntR12, cntR13 = func_getHighGearCount(
-                        dict_GuildMateDetails, thisUnit,
-                        cntR12, cntR13
-                    )
-                else:
-                    if exportGuildDataAsCSV:
-                        df_guildRooster.loc[
-                            dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                            guildMateName] = 'na'
-                    # func_showMainToonInfo(dict_GuildMateDetails, thisUnit)
+                cntR12, cntR13 = func_getHighGearCount(
+                    dict_GuildMateDetails, thisUnit,
+                    cntR12, cntR13
+                )
+            else:
+                if exportGuildDataAsCSV:
+                    df_guildRooster.loc[
+                        dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                        guildMateName] = 'na'
+                # func_showMainToonInfo(dict_GuildMateDetails, thisUnit)
 
         print(
             dict_guild[0]['roster'][guileMateKey]['name'] + " >>> R12 " + str(cntR12) + " // R13  " + str(cntR13) + " ")
@@ -457,17 +508,26 @@ def func_exportGuildDataIntoFiles(
     df_criticalToons
 ):
     if exportDataframesInCSV:
-        df_guildMasterFile.to_csv("GUILD_ROOSTER_"+guildName+".csv", sep=";")
-        df_glsOnly.to_csv("GUILD_ROOSTER_GLs_"+guildName+".csv", sep=";")
-        df_criticalToons.to_csv("GUILD_ROOSTER_ImportantToons_"+guildName+".csv", sep=";")
+        df_guildMasterFile.to_csv(
+            func_getFileNameAndPathForThisFile("GUILD_ROOSTER_"+guildName+".csv")
+            , sep=";")
+
+        df_glsOnly.to_csv(
+            func_getFileNameAndPathForThisFile("GUILD_ROOSTER_GLs_"+guildName+".csv")
+            , sep=";")
+
+        df_criticalToons.to_csv(
+            func_getFileNameAndPathForThisFile("GUILD_ROOSTER_ImportantToons_"+guildName+".csv")
+            , sep=";")
 
     if dict_tasks["task_exportAllGuildData"]:
-        fileName = "GUILD_ROOSTER_"+guildName+".xlsx"
+        fileName = func_getFileNameAndPathForThisFile("GUILD_ROOSTER_"+guildName+".xlsx")
 
     if dict_tasks["task_exportPlayersData"]:
         for guileMateKey in range(len(dict_guild[0]['roster'])):
             if dict_guild[0]['roster'][guileMateKey]['allyCode'] == thisAllyCode:
-                fileName = "PLAYER_ROOSTER_"+str(dict_guild[0]['roster'][guileMateKey]['name'])+".xlsx"
+                fileName = func_getFileNameAndPathForThisFile(
+                    "PLAYER_ROOSTER_"+str(dict_guild[0]['roster'][guileMateKey]['name'])+".xlsx")
     # writer = pd.ExcelWriter(fileName, engine='xlsxwriter')
 
     with pd.ExcelWriter(fileName) as writer:
@@ -556,10 +616,14 @@ def func_letsCompareTheFinalDatasets(
 
     # TODO >> check if both array places are in use
     if dict_tasks["task_compare_guilds"]:
-        fileName = "COMPARISON_" + guildNames[0] +" vs " + guildNames[1] + ".xlsx"
+        fileName = func_getFileNameAndPathForThisFile(
+            "COMPARISON_" + guildNames[0] +" vs " + guildNames[1] + ".xlsx"
+        )
 
     if dict_tasks["task_compare_players"]:
-        fileName = "COMPARISON_" + playerNames[0] +" vs " + playerNames[1] + ".xlsx"
+        fileName = func_getFileNameAndPathForThisFile(
+            "COMPARISON_" + playerNames[0] +" vs " + playerNames[1] + ".xlsx"
+        )
 
     with pd.ExcelWriter(fileName) as writer:
         df_compared_guildMasterFile.to_excel(writer, sheet_name='GUILD_ALL')
@@ -583,7 +647,7 @@ def func_renameColumnsAndAddSuffix(
     suffix
 ):
     thisDF = thisDF[[
-        dict_extraColumns["G11"],
+        dict_extraColumns["G1-G11"],
         dict_extraColumns["G12"],
         dict_extraColumns["G13"],
         dict_extraColumns["G13_R123"],
@@ -594,7 +658,7 @@ def func_renameColumnsAndAddSuffix(
 
     thisDF.rename(columns=
     {
-        dict_extraColumns["G11"]: dict_extraColumns["G11"] + " " + suffix,
+        dict_extraColumns["G1-G11"]: dict_extraColumns["G1-G11"] + " " + suffix,
         dict_extraColumns["G12"]: dict_extraColumns["G12"] + " " + suffix,
         dict_extraColumns["G13"]: dict_extraColumns["G13"] + " " + suffix,
         dict_extraColumns["G13_R123"]: dict_extraColumns["G13_R123"] + " " + suffix,
@@ -606,6 +670,12 @@ def func_renameColumnsAndAddSuffix(
     return thisDF
 
 # ######################################################################################################################
+def func_getFileNameAndPathForThisFile(
+    fileName
+):
+    return os.path.join(file_dir, subFolderForFileExport, fileName)
+
+# ######################################################################################################################
 def func_createNewDataframeWithMainColumnsOnly(
     thisDF,
     fileName
@@ -613,16 +683,20 @@ def func_createNewDataframeWithMainColumnsOnly(
     df_guild1 = thisDF[0]
     df_guild2 = thisDF[1]
 
-    df_guild1.to_csv("df_guild1_BEFORE" + ".csv", sep=";")
-    suffix = func_getFirstDataFrameColumnNameSuffix(0)
-    df_guild1 = func_renameColumnsAndAddSuffix(df_guild1, suffix)
-    df_guild1.to_csv("df_guild1" + ".csv", sep=";")
+    df_guild1.to_csv(func_getFileNameAndPathForThisFile("df_guild1_BEFORE" + ".csv"), sep=";")
+    suffix_g1 = func_getFirstDataFrameColumnNameSuffix(0)
+    df_guild1 = func_renameColumnsAndAddSuffix(df_guild1, suffix_g1)
+    df_guild1.to_csv(func_getFileNameAndPathForThisFile("df_guild1" + ".csv"), sep=";")
 
-    suffix = func_getFirstDataFrameColumnNameSuffix(1)
-    df_guild2 = func_renameColumnsAndAddSuffix(df_guild2, suffix)
+    suffix_g2 = func_getFirstDataFrameColumnNameSuffix(1)
+    df_guild2 = func_renameColumnsAndAddSuffix(df_guild2, suffix_g2)
 
     mergedDF = pd.concat([df_guild1, df_guild2], axis=1)
-    mergedDF.to_csv(fileName+".csv", sep=";")
+    mergedDF.to_csv(func_getFileNameAndPathForThisFile(fileName+".csv"), sep=";")
+    if dict_tasks["task_compare_guilds"]:
+        mergedDF["DELTA G13"] = \
+            df_guild1[(dict_extraColumns["G13"] + " " + suffix_g1)] - \
+            df_guild2[(dict_extraColumns["G13"] + " " + suffix_g2)]
 
     return mergedDF
 
@@ -630,11 +704,14 @@ def func_createNewDataframeWithMainColumnsOnly(
 # ######################################################################################################################
 # ######################################################################################################################
 
+file_dir = os.path.dirname(os.path.abspath(__file__))
+
 listOf_guildMasterFile = list()
 listOf_glsOnly = list()
 listOf_criticalToons = list()
 
-func_checkIfAllAllyCodesAreNeeded()
+if len(allyCodes) > 1:
+    func_checkIfAllAllyCodesAreNeeded()
 
 for thisAllyCode in allyCodes:
     df_guildMasterFile, df_glsOnly, df_criticalToons = func_doAllAroundThisAllyCode(thisAllyCode)
@@ -646,6 +723,7 @@ for thisAllyCode in allyCodes:
 # dict_listOfAllToons = func_createListOfPossibleToons()
 
 if len(allyCodes) > 1:
-    func_letsCompareTheFinalDatasets(
-        listOf_guildMasterFile, listOf_glsOnly, listOf_criticalToons)
+    if dict_tasks["task_compare_guilds"] or dict_tasks["task_compare_players"]:
+        func_letsCompareTheFinalDatasets(
+            listOf_guildMasterFile, listOf_glsOnly, listOf_criticalToons)
 
