@@ -465,7 +465,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 3}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 5}
         ],
     },
     {
