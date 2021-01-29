@@ -3,6 +3,7 @@
 import os
 import json
 import pandas as pd
+import random
 from SWGOH_cPIT_Bot_VARs import *
 from api_swgoh_help import api_swgoh_help, settings
 
@@ -16,6 +17,7 @@ exportDataframesInCSV = False
 flag_all = 'all toons'
 flag_gls = 'gls only'
 flag_critical = 'important toon only'
+flag_pitRaidOverview = 'df with pit teams per guild mate'
 
 dict_extraColumns = {
     "G1-G11": " TOTAL G1 - G11",
@@ -29,17 +31,24 @@ dict_extraColumns = {
 
 #region COMPARISON ... turn ON / OFF player or guild comparison
 dict_tasks = {
-    "task_compare_guilds": 1,
+    "task_compare_guilds": 0,
     "task_compare_players": 0,
     "task_exportPlayersData": 0,
-    "task_exportAllGuildData" : 0,
-    "task_ignoreMissingGuildMates": 1
+    "task_exportAllGuildData" : 1,
+    "task_ignoreMissingGuildMates": 0,
+    "task_doThePitAnalysis": 1
 }
-allyCodes = [836434711, 755235894] #247174967
+allyCodes = [836434711] #247174967
 guildNames = [None] * len(allyCodes)
 playerNames =  [None] * len(allyCodes)
 
-useOnlyThisAmountOfGuildMates = 3
+useOnlyThisAmountOfGuildMates = 4
+
+dict_guildMateNamesAndAllyCodes = {}
+flag_allyCode = "allyCode"
+flag_guildMateName = "name"
+
+dict_teamCompostion = {}
 
 # allowishus 556142852
 # Daroul 642881742
@@ -48,22 +57,13 @@ useOnlyThisAmountOfGuildMates = 3
 # ALLiΔNCE KØTØR 637681396
 #endregion
 
-
-
 minGearLevelForAnalysis = 1
 
-dict_cPitTeamsPerGuildMate =  [{} for sub in range(50)]
-
-dict_teamNames = {
-    'dict_padme': 'PADME',
-    'dict_gas': 'GENERALSKYWALKER'
-}
-
 teamMember_01 = "tm1"
-teamMember_02 = "tm1"
-teamMember_03 = "tm1"
-teamMember_04 = "tm1"
-teamMember_05 = "tm1"
+teamMember_02 = "tm2"
+teamMember_03 = "tm3"
+teamMember_04 = "tm4"
+teamMember_05 = "tm5"
 
 phase_01 = 'p1'
 phase_02 = 'p2'
@@ -79,6 +79,19 @@ gear = {}
 creds = settings(swgoh_user, swgoh_secret)
 client = api_swgoh_help(creds)
 
+flag_pitTrysDetail_id = "ID"
+flag_pitTrysDetail_AllyName = "AllyName"
+flag_pitTrysDetail_AllyGuildCode = "AllyGuildCode"
+flag_pitTrysDetail_PitTeam = "PitTeam"
+flag_pitTrysDetail_PitPhase = "PitPhase"
+flag_pitTrysDetail_expAvgDamage = "expAvgDamage"
+flag_pitTrysDetail_totalDamageThisPhase = "totalDamageThisPhase"
+
+flag_pitTrySummary_id = "ID"
+flag_pitTrySummary_uniqueIDBasedOnPitTeamIDs = "pit-team-id"
+flag_pitTrySummary_TotalDamage = "Total Damage"
+
+PitTeamCompositionTrys = 5
 
 # print(listAllToons)
 # print(dict_cPIT_botTeams)
@@ -87,45 +100,16 @@ client = api_swgoh_help(creds)
 #
 # print(dict_cPIT_botTeams[0]['team'])
 # print(dict_cPIT_botTeams[0]['teamMember'])
-# print(dict_cPIT_botTeams[0]['teamMember'][0][teamMember_01])
+# print(dict_cPIT_botTeams[7]['teamMember'][0][teamMember_01])
 # print(dict_cPIT_botTeams[0]['averageDamagePerPhase'][0][phase_01])
 #
 # print(dict_cPIT_botTeams[1]['team'])
 
-flag_guildTeamDicts_playerName = "GuildMate"
-
-
-# print(dict_cPIT_botTeams)
-
 # for thisTeam in range(len(dict_cPIT_botTeams)):
 #     print("cPIT TEAM: " + dict_cPIT_botTeams[thisTeam]['team'])
-#     # dict_cPitTeamsPerGuildMate[cnt][flag_guildTeamDicts_playerName]['cpit'] = str(dict_cPIT_botTeams[thisTeam]['team'])
-#
-# exit()
+#     print("cPIT TEAM: " + str(dict_cPIT_botTeams[thisTeam]['teamMember']))
 
-# dict_cPIT_botTeams = [
-#     {
-#         'team': 'PADME',
-#         'teamMember':
-#         [
-#             {'tm1': 'PADMEAMIDALA', 'tm2': 'AHSOKATANO', 'tm3': 'ANAKINKNIGHT', 'tm4': 'GENERALKENOBI', 'tm5': 'C3POLEGENDARY'}
-#         ],
-#         'averageDamagePerPhase':
-#         [
-#             {'p1': 4.5, 'p2': 4.5, 'p3': 4.5, 'p4': 4.5}
-#         ],
-#     },
-#     {
-#         'team': 'GENERALSKYWALKER',
-#         'teamMember': [
-#             {'tm1': 'GENERALSKYWALKER', 'tm2': 'CT7567', 'tm3': 'ARCTROOPER501ST', 'tm4': 'CT210408', 'tm5': 'CT5555'}
-#         ],
-#         'averageDamagePerPhase':
-#         [
-#             {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 4}
-#         ],
-#     }
-# ]
+flag_guildTeamDicts_playerName = "GuildMate"
 
 # ######################################################################################################################
 def func_convertRelicLevel(
@@ -204,26 +188,15 @@ def func_createFreshGuildNameDict(
 
 
 # ######################################################################################################################
-def func_prepareMasterTeamDictWithAllDataPerGuildMate(
+def func_fillGuildMateDictionary(
+    guileMateKey,
     dict_guild
 ):
-    print("############################")
-    cnt = 0
+    guildMateName = str(dict_guild[0]['roster'][guileMateKey]['name'])
+    guildMateAllyCode = str(dict_guild[0]['roster'][guileMateKey]['allyCode'])
 
-    for guileMateKey in range(len(dict_guild[0]['roster'])):
-        # print("### NEXT Guild Mate ###")
-        # print(dict_guild[0]['roster'][guileMateKey]['name'] + " ID: " + str(dict_guild[0]['roster'][guileMateKey]['allyCode']))
-        dict_cPitTeamsPerGuildMate[cnt][flag_guildTeamDicts_playerName] = str(dict_guild[0]['roster'][guileMateKey]['name'])
-
-        # for thisTeam in range(len(dict_cPIT_botTeams)):
-        #     # print("cPIT TEAM: " + dict_cPIT_botTeams[thisTeam]['team'])
-        #     dict_cPitTeamsPerGuildMate[cnt][flag_guildTeamDicts_playerName]['cpit'] = str(dict_cPIT_botTeams[thisTeam]['team'])
-        #
-        cnt+=1
-
-    print("dict_cPitTeamsPerGuildMate ############################")
-    print(dict_cPitTeamsPerGuildMate)
-    print("############################")
+    dict_guildMateNamesAndAllyCodes[guildMateAllyCode] = guildMateName
+    # print(dict_guildMateNamesAndAllyCodes)
 
 # ######################################################################################################################
 def func_loopGuildRooster(
@@ -231,6 +204,7 @@ def func_loopGuildRooster(
     df_guildRooster,
     df_glsOnly,
     df_criticalToons,
+    df_pit_HighGearToonsPerGuildMate,
     thisAllyCode
 ):
     print(str(len(dict_guild[0]['roster'])))
@@ -239,12 +213,125 @@ def func_loopGuildRooster(
     for guileMateKey in range(len(dict_guild[0]['roster'])):
         thisGuildMateNumber += 1
 
+        func_fillGuildMateDictionary(guileMateKey, dict_guild)
+
         if thisGuildMateNumber <= useOnlyThisAmountOfGuildMates:
-            df_guildRooster, df_glsOnly, df_criticalToons = func_analyseThisGuildMateData(
-                dict_guild, guileMateKey, df_guildRooster, df_glsOnly, df_criticalToons, thisAllyCode)
+            df_guildRooster, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate = func_analyseThisGuildMateData(
+                dict_guild,
+                guileMateKey,
+                df_guildRooster,
+                df_glsOnly,
+                df_criticalToons,
+                df_pit_HighGearToonsPerGuildMate,
+                thisAllyCode
+            )
 
-    return df_guildRooster, df_glsOnly
+    return df_guildRooster, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate
 
+# ######################################################################################################################
+def func_analyseThisGuildMateData(
+    dict_guild,
+    guileMateKey,
+    df_guildRooster,
+    df_glsOnly,
+    df_criticalToons,
+    df_pit_HighGearToonsPerGuildMate,
+    thisAllyCode
+):
+    guildMateName = str(dict_guild[0]['roster'][guileMateKey]['name'])
+    guildMateAllyCode = str(dict_guild[0]['roster'][guileMateKey]['allyCode'])
+
+    fineToUseThisGuildMate = func_checkIfThisGuildMateShouldBeUsed(guildMateName)
+
+    ### limit analysis for one guild mate as of now ... remove line in case any guild mate should be used
+    if (
+            fineToUseThisGuildMate and \
+            (
+                (dict_tasks["task_exportPlayersData"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
+                (dict_tasks["task_compare_players"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
+                dict_tasks["task_exportAllGuildData"] or \
+                dict_tasks["task_compare_guilds"]
+            )
+    ):
+        print("### func_analyseThisGuildMateData >>> NEXT Guild Mate ###")
+        print(dict_guild[0]['roster'][guileMateKey]['name'] + " ID: " + str(
+            dict_guild[0]['roster'][guileMateKey]['allyCode']))
+
+        if str(thisAllyCode) == str(guildMateAllyCode):
+            playerNames[allyCodes.index(thisAllyCode)] = dict_guild[0]['roster'][guileMateKey]['name']
+
+        dict_GuildMateDetails = client.fetchPlayers(int(dict_guild[0]['roster'][guileMateKey]['allyCode']))
+
+        # print(dict_GuildMateDetails)
+        # print(dict_GuildMateDetails[0]['roster'][0]['nameKey'])
+        cntR12 = 0
+        cntR13 = 0
+
+        for thisUnit in range(len(dict_GuildMateDetails[0]['roster'])):
+            # if dict_GuildMateDetails[0]['roster'][thisUnit]['combatType'] == 'CHARACTER':
+            # print("'" + dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] + "',")
+            if dict_GuildMateDetails[0]['roster'][thisUnit]['gear'] >= minGearLevelForAnalysis:
+                thisGearOrRelicLevel = func_getGearLevelOrRelicLevel(dict_GuildMateDetails, thisUnit)
+                thisExtraColumn = func_getExtraColumnForThisToon(thisGearOrRelicLevel)
+
+                # print('### ' + str( dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey']))
+                # print("thisGearOrRelicLevel: " + str(thisGearOrRelicLevel))
+                # print("thisExtraColumn: " + str(thisExtraColumn))
+
+                df_guildRooster = func_fillDetailsForThisDataframe(
+                    df_guildRooster,
+                    dict_GuildMateDetails,
+                    guildMateName,
+                    thisUnit,
+                    thisGearOrRelicLevel,
+                    thisExtraColumn,
+                    True)
+
+                if thisGearOrRelicLevel[:1] == "R":
+                    df_pit_HighGearToonsPerGuildMate = func_fillDetailsForThisDataframe(
+                        df_pit_HighGearToonsPerGuildMate,
+                        dict_GuildMateDetails,
+                        guildMateName,
+                        thisUnit,
+                        thisGearOrRelicLevel,
+                        thisExtraColumn,
+                        False)
+
+                if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_gls:
+                    df_glsOnly = func_fillDetailsForThisDataframe(
+                        df_glsOnly,
+                        dict_GuildMateDetails,
+                        guildMateName,
+                        thisUnit,
+                        thisGearOrRelicLevel,
+                        thisExtraColumn,
+                        True)
+
+                if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_criticalToons:
+                    df_criticalToons = func_fillDetailsForThisDataframe(
+                        df_criticalToons,
+                        dict_GuildMateDetails,
+                        guildMateName,
+                        thisUnit,
+                        thisGearOrRelicLevel,
+                        thisExtraColumn,
+                        True)
+
+                cntR12, cntR13 = func_getHighGearCount(
+                    dict_GuildMateDetails, thisUnit,
+                    cntR12, cntR13
+                )
+            else:
+                if exportGuildDataAsCSV:
+                    df_guildRooster.loc[
+                        dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                        guildMateName] = 'na'
+                # func_showMainToonInfo(dict_GuildMateDetails, thisUnit)
+
+        print(
+            dict_guild[0]['roster'][guileMateKey]['name'] + " >>> R12 " + str(cntR12) + " // R13  " + str(cntR13) + " ")
+
+    return df_guildRooster, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate
 
 # ######################################################################################################################
 def func_getGearLevelOrRelicLevel(
@@ -294,140 +381,51 @@ def func_checkIfThisGuildMateShouldBeUsed(
         return True
 
 # ######################################################################################################################
-def func_analyseThisGuildMateData(
-    dict_guild,
-    guileMateKey,
-    df_guildRooster,
-    df_glsOnly,
-    df_criticalToons,
-    thisAllyCode
-):
-    guildMateName = str(dict_guild[0]['roster'][guileMateKey]['name'])
-    guildMateAllyCode = str(dict_guild[0]['roster'][guileMateKey]['allyCode'])
-
-    fineToUseThisGuildMate = func_checkIfThisGuildMateShouldBeUsed(guildMateName)
-
-    ### limit analysis for one guild mate as of now ... remove line in case any guild mate should be used
-    if (
-            fineToUseThisGuildMate and \
-            (
-                (dict_tasks["task_exportPlayersData"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
-                (dict_tasks["task_compare_players"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
-                dict_tasks["task_exportAllGuildData"] or \
-                dict_tasks["task_compare_guilds"]
-            )
-    ):
-        print("### func_analyseThisGuildMateData >>> NEXT Guild Mate ###")
-        print(dict_guild[0]['roster'][guileMateKey]['name'] + " ID: " + str(
-            dict_guild[0]['roster'][guileMateKey]['allyCode']))
-
-        if str(thisAllyCode) == str(guildMateAllyCode):
-            playerNames[allyCodes.index(thisAllyCode)] = dict_guild[0]['roster'][guileMateKey]['name']
-
-        dict_GuildMateDetails = client.fetchPlayers(int(dict_guild[0]['roster'][guileMateKey]['allyCode']))
-
-        # print(dict_GuildMateDetails)
-        # print(dict_GuildMateDetails[0]['roster'][0]['nameKey'])
-        cntR12 = 0
-        cntR13 = 0
-
-        for thisUnit in range(len(dict_GuildMateDetails[0]['roster'])):
-            # if dict_GuildMateDetails[0]['roster'][thisUnit]['combatType'] == 'CHARACTER':
-            # print("'" + dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] + "',")
-            if dict_GuildMateDetails[0]['roster'][thisUnit]['gear'] >= minGearLevelForAnalysis:
-                thisGearOrRelicLevel = func_getGearLevelOrRelicLevel(dict_GuildMateDetails, thisUnit)
-                thisExtraColumn = func_getExtraColumnForThisToon(thisGearOrRelicLevel)
-
-                # print('### ' + str( dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey']))
-                # print("thisGearOrRelicLevel: " + str(thisGearOrRelicLevel))
-                # print("thisExtraColumn: " + str(thisExtraColumn))
-
-                df_guildRooster = func_fillDetailsForThisDataframe(
-                    df_guildRooster,
-                    dict_GuildMateDetails,
-                    guildMateName,
-                    thisUnit,
-                    thisGearOrRelicLevel,
-                    thisExtraColumn)
-
-                if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_gls:
-                    df_glsOnly = func_fillDetailsForThisDataframe(
-                        df_glsOnly,
-                        dict_GuildMateDetails,
-                        guildMateName,
-                        thisUnit,
-                        thisGearOrRelicLevel,
-                        thisExtraColumn)
-
-                if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_criticalToons:
-                    df_criticalToons = func_fillDetailsForThisDataframe(
-                        df_criticalToons,
-                        dict_GuildMateDetails,
-                        guildMateName,
-                        thisUnit,
-                        thisGearOrRelicLevel,
-                        thisExtraColumn)
-
-                cntR12, cntR13 = func_getHighGearCount(
-                    dict_GuildMateDetails, thisUnit,
-                    cntR12, cntR13
-                )
-            else:
-                if exportGuildDataAsCSV:
-                    df_guildRooster.loc[
-                        dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                        guildMateName] = 'na'
-                # func_showMainToonInfo(dict_GuildMateDetails, thisUnit)
-
-        print(
-            dict_guild[0]['roster'][guileMateKey]['name'] + " >>> R12 " + str(cntR12) + " // R13  " + str(cntR13) + " ")
-
-    return df_guildRooster, df_glsOnly, df_criticalToons
-
-# ######################################################################################################################
 def func_fillDetailsForThisDataframe(
     thisDF,
     dict_GuildMateDetails,
     guildMateName,
     thisUnit,
     thisGearOrRelicLevel,
-    thisExtraColumn
+    thisExtraColumn,
+    addExtraColumn
 ):
     #region fill Main Rooster DF
     thisDF.loc[
         dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
         guildMateName] = thisGearOrRelicLevel
 
-    if thisGearOrRelicLevel[:1] == "R":
-        if dict_extraColumns["G13"] in thisDF.columns:
-            thisDF.loc[
-                dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'], dict_extraColumns["G13"]] = \
-                thisDF.loc[dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                dict_extraColumns["G13"]] + 1
-        else:
-            thisDF[dict_extraColumns["G13"]] = 0
-            thisDF.loc[
-                dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                dict_extraColumns["G13"]] = 1
+    if addExtraColumn:
+        if thisGearOrRelicLevel[:1] == "R":
+            if dict_extraColumns["G13"] in thisDF.columns:
+                thisDF.loc[
+                    dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'], dict_extraColumns["G13"]] = \
+                    thisDF.loc[dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                    dict_extraColumns["G13"]] + 1
+            else:
+                thisDF[dict_extraColumns["G13"]] = 0
+                thisDF.loc[
+                    dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                    dict_extraColumns["G13"]] = 1
 
-    if thisExtraColumn != "":
-        # print("count this toon in this extra column: " + str(thisExtraColumn) )
-        if thisExtraColumn in thisDF.columns:
-            # print("Column is there already")
-            # print("Current value: " + str( thisDF.loc[
-            #     dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-            #     thisExtraColumn] ))
-            thisDF.loc[
-                dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                thisExtraColumn] = thisDF.loc[
-                dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                thisExtraColumn] + 1
-        else:
-            # print("NEW column")
-            thisDF[thisExtraColumn] = 0
-            thisDF.loc[
-                dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-                thisExtraColumn] = 1
+        if thisExtraColumn != "":
+            # print("count this toon in this extra column: " + str(thisExtraColumn) )
+            if thisExtraColumn in thisDF.columns:
+                # print("Column is there already")
+                # print("Current value: " + str( thisDF.loc[
+                #     dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                #     thisExtraColumn] ))
+                thisDF.loc[
+                    dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                    thisExtraColumn] = thisDF.loc[
+                    dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                    thisExtraColumn] + 1
+            else:
+                # print("NEW column")
+                thisDF[thisExtraColumn] = 0
+                thisDF.loc[
+                    dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
+                    thisExtraColumn] = 1
     #endregion
 
     return thisDF
@@ -440,7 +438,7 @@ def func_prepareDataframeWithAllToons(
     flag_whatDF,
     logGuildMateDetails
 ):
-    if flag_whatDF ==  flag_all:
+    if flag_whatDF == flag_all:
         thisDF = pd.DataFrame(index=listAllToons)
 
     if flag_whatDF == flag_gls:
@@ -561,16 +559,20 @@ def func_checkIfAllAllyCodesAreNeeded(
 
 # ######################################################################################################################
 def func_doAllAroundThisAllyCode(
-    thisAllyCode
+    thisAllyCode,
+    df_guildMasterFile,
+    df_glsOnly,
+    df_criticalToons,
+    df_pitTeamOverviewPerGuildMate,
+    df_pit_HighGearToonsPerGuildMate
 ):
-    df_guildMasterFile = pd.DataFrame()
-    df_glsOnly = pd.DataFrame()
-    df_criticalToons = pd.DataFrame()
-
     dict_guildRooster, guildName = func_getGuildData(thisAllyCode)
 
+    #region PREPARE empty dfs
     df_guildMasterFile = func_prepareDataframeWithAllToons(
         df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_all, True)
+
+    # df_pitTeamOverviewPerGuildMate = df_guildMasterFile.copy()
 
     df_glsOnly = func_prepareDataframeWithAllToons(
         df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_gls, False)
@@ -578,9 +580,18 @@ def func_doAllAroundThisAllyCode(
     df_criticalToons = func_prepareDataframeWithAllToons(
         df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_critical, False)
 
-    # dict_cPitTeamsPerGuildMate = func_prepareMasterTeamDictWithAllDataPerGuildMate(dict_guildRooster)
-    df_guildMasterFile, df_glsOnly = func_loopGuildRooster(
-        dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons, thisAllyCode)
+    df_pitTeamOverviewPerGuildMate = func_prepareDataframeWithAllToons(
+        df_pitTeamOverviewPerGuildMate, dict_guildRooster, thisAllyCode, flag_pitRaidOverview, False)
+
+    df_pit_HighGearToonsPerGuildMate = func_prepareDataframeWithAllToons(
+        df_pit_HighGearToonsPerGuildMate, dict_guildRooster, thisAllyCode, flag_all, False)
+
+    #endregion
+
+    # #region FILL dfs with needed data
+    df_guildMasterFile, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate = func_loopGuildRooster(
+        dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate, thisAllyCode)
+    # #endregion
 
     df_guildMasterFile = func_fillMissingColumnsToHarmonizeLayout(df_guildMasterFile)
     df_glsOnly = func_fillMissingColumnsToHarmonizeLayout(df_glsOnly)
@@ -592,7 +603,12 @@ def func_doAllAroundThisAllyCode(
             df_guildMasterFile, df_glsOnly, df_criticalToons
         )
 
-    return df_guildMasterFile, df_glsOnly, df_criticalToons
+    return \
+        df_guildMasterFile, \
+        df_glsOnly, \
+        df_criticalToons, \
+        df_pitTeamOverviewPerGuildMate, \
+        df_pit_HighGearToonsPerGuildMate
 
 # ######################################################################################################################
 def func_fillMissingColumnsToHarmonizeLayout(
@@ -701,6 +717,110 @@ def func_createNewDataframeWithMainColumnsOnly(
     return mergedDF
 
 # ######################################################################################################################
+def func_createListOfPitTeams(
+    listOf_allPossiblePitTeams
+):
+    for thisTeam in range(len(dict_cPIT_botTeams)):
+        # print("cPIT TEAM: " + dict_cPIT_botTeams[thisTeam]['team'])
+        listOf_allPossiblePitTeams.append(dict_cPIT_botTeams[thisTeam]['team'])
+
+    # print(listOf_allPossiblePitTeams)
+
+    return listOf_allPossiblePitTeams
+
+# ######################################################################################################################
+def func_createMainDFs():
+    df_guildMasterFile = pd.DataFrame()
+    df_glsOnly = pd.DataFrame()
+    df_criticalToons = pd.DataFrame()
+    df_pitTeamOverviewPerGuildMate = pd.DataFrame()
+    df_pit_HighGearToonsPerGuildMate = pd.DataFrame()
+
+    return df_guildMasterFile, df_glsOnly, df_criticalToons, df_pitTeamOverviewPerGuildMate, df_pit_HighGearToonsPerGuildMate
+
+# ######################################################################################################################
+def func_getTeamMember(
+    thisDictElement
+):
+    return \
+        thisDictElement[0][teamMember_01],\
+        thisDictElement[0][teamMember_02],\
+        thisDictElement[0][teamMember_03],\
+        thisDictElement[0][teamMember_04],\
+        thisDictElement[0][teamMember_05]
+
+# ######################################################################################################################
+def func_fillDataframeWithAvailablePitTeams(
+    df_pitTeamOverviewPerGuildMate,
+    df_pit_HighGearToonsPerGuildMate
+):
+    logDetailsIfSquadIsAvailable = False
+
+    for thisGuildMate in df_pit_HighGearToonsPerGuildMate:
+        if thisGuildMate in dict_extraColumns:
+            continue
+
+        print("check if pit teams are available for " + thisGuildMate)
+        for thisTeam in range(len(dict_cPIT_botTeams)):
+            # print("cPIT TEAM: " + dict_cPIT_botTeams[thisTeam]['team'])
+            # print(dict_cPIT_botTeams[thisTeam]['teamMember'])
+            # print(dict_cPIT_botTeams[thisTeam]['teamMember'][0][teamMember_01])
+            # print(dict_cPIT_botTeams[thisTeam]['teamMember'][0][teamMember_02])
+            tm1, tm2, tm3, tm4, tm5 = func_getTeamMember(dict_cPIT_botTeams[thisTeam]['teamMember'])
+            # print("tm1: " + tm1 + " R-Level " + thisGuildMate + ": " +
+            #       df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate])
+            # print("tm2: " + tm2 + " R-Level " + thisGuildMate + ": " +
+            #       df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate])
+            # print("tm3: " + tm3 + " R-Level " + thisGuildMate + ": " +
+            #       df_pit_HighGearToonsPerGuildMate.loc[tm3, thisGuildMate])
+            # print("tm4: " + tm4 + " R-Level " + thisGuildMate + ": " +
+            #       df_pit_HighGearToonsPerGuildMate.loc[tm4, thisGuildMate])
+            # print("tm5: " + tm5 + " R-Level " + thisGuildMate + ": " +
+            #       df_pit_HighGearToonsPerGuildMate.loc[tm5, thisGuildMate])
+            if \
+                    df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate][:1] == 'R' and \
+                    df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate][:1] == 'R' and \
+                    df_pit_HighGearToonsPerGuildMate.loc[tm3, thisGuildMate][:1] == 'R' and \
+                    df_pit_HighGearToonsPerGuildMate.loc[tm4, thisGuildMate][:1] == 'R' and \
+                    df_pit_HighGearToonsPerGuildMate.loc[tm5, thisGuildMate][:1] == 'R':
+
+                df_pitTeamOverviewPerGuildMate.loc[dict_cPIT_botTeams[thisTeam]['team'], thisGuildMate] = 1
+                if logDetailsIfSquadIsAvailable:
+                    print("YES @ " + dict_cPIT_botTeams[thisTeam]['team'])
+            else:
+                df_pitTeamOverviewPerGuildMate.loc[dict_cPIT_botTeams[thisTeam]['team'], thisGuildMate] = 0
+                if logDetailsIfSquadIsAvailable:
+                    print("NO @ " + dict_cPIT_botTeams[thisTeam]['team'])
+
+    return df_pitTeamOverviewPerGuildMate
+
+# ######################################################################################################################
+def func_generateNextPitTry():
+    dict_teamCompostion.clear()
+
+    for thisGuildMateID in dict_guildMateNamesAndAllyCodes:
+        # print(dict_guildMateNamesAndAllyCodes[thisGuildMateID])
+
+        df_thisGuildMateToons = df_pitTeamOverviewPerGuildMate[
+            df_pitTeamOverviewPerGuildMate[dict_guildMateNamesAndAllyCodes[thisGuildMateID]] == 1]
+
+        # if dict_guildMateNamesAndAllyCodes[thisGuildMateID] == 'Leonidas':
+        if len(df_thisGuildMateToons) > 0:
+            print("df_thisGuildMateToons")
+            print(df_thisGuildMateToons)
+
+            print("len: " + str(len(df_thisGuildMateToons)))
+
+            useThisTeam = random.randint(1, len(df_thisGuildMateToons))-1
+            print(useThisTeam)
+
+            print(df_thisGuildMateToons.index[useThisTeam])
+
+            dict_teamCompostion[thisGuildMateID] = df_thisGuildMateToons.index[useThisTeam]
+
+
+
+# ######################################################################################################################
 # ######################################################################################################################
 # ######################################################################################################################
 
@@ -709,18 +829,55 @@ file_dir = os.path.dirname(os.path.abspath(__file__))
 listOf_guildMasterFile = list()
 listOf_glsOnly = list()
 listOf_criticalToons = list()
+listOf_allPossiblePitTeams = list()
+
+df_guildMasterFile, df_glsOnly, df_criticalToons, df_pitTeamOverviewPerGuildMate, df_pit_HighGearToonsPerGuildMate = func_createMainDFs()
+
+listOf_allPossiblePitTeams = func_createListOfPitTeams(listOf_allPossiblePitTeams)
+df_pitTeamOverviewPerGuildMate = pd.DataFrame(index=listOf_allPossiblePitTeams)
+print(df_pitTeamOverviewPerGuildMate.head(3))
 
 if len(allyCodes) > 1:
     func_checkIfAllAllyCodesAreNeeded()
 
 for thisAllyCode in allyCodes:
-    df_guildMasterFile, df_glsOnly, df_criticalToons = func_doAllAroundThisAllyCode(thisAllyCode)
+    print("### NEXT ALLY CODE: " + str(thisAllyCode))
+    df_guildMasterFile, df_glsOnly, df_criticalToons, df_pitTeamOverviewPerGuildMate, df_pit_HighGearToonsPerGuildMate = \
+        func_doAllAroundThisAllyCode(
+            thisAllyCode,
+            df_guildMasterFile,
+            df_glsOnly,
+            df_criticalToons,
+            df_pitTeamOverviewPerGuildMate,
+            df_pit_HighGearToonsPerGuildMate)
 
     listOf_guildMasterFile.append(df_guildMasterFile)
     listOf_glsOnly.append(df_glsOnly)
     listOf_criticalToons.append(df_criticalToons)
 
-# dict_listOfAllToons = func_createListOfPossibleToons()
+if dict_tasks["task_doThePitAnalysis"]:
+    # print(df_pitTeamOverviewPerGuildMate.head(3)
+    df_pit_HighGearToonsPerGuildMate.to_csv(
+        func_getFileNameAndPathForThisFile("df_pit_HighGearToonsPerGuildMate" + ".csv"),
+        sep=";")
+
+    df_pitTeamOverviewPerGuildMate = func_fillDataframeWithAvailablePitTeams(
+        df_pitTeamOverviewPerGuildMate,
+        df_pit_HighGearToonsPerGuildMate
+    )
+
+    df_pitTeamOverviewPerGuildMate.to_csv(
+        func_getFileNameAndPathForThisFile("df_pitTeamOverviewPerGuildMate" + ".csv"),
+        sep=";")
+
+    thisTry = 1
+    while thisTry <= PitTeamCompositionTrys:
+        thisUniqueID, dict_teamCompostion = func_generateNextPitTry()
+
+print(df_guildMasterFile.loc['General Kenobi', 'Daeshara'])
+
+print("dict_guildMateNamesAndAllyCodes")
+print(dict_guildMateNamesAndAllyCodes)
 
 if len(allyCodes) > 1:
     if dict_tasks["task_compare_guilds"] or dict_tasks["task_compare_players"]:
