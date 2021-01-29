@@ -388,7 +388,7 @@ dict_Spartas = {
     'Kieron Bucannen':              '1',
     'Daeshara':                     '1',
     'Sternocleidomastoideius':      '1',
-    'Lessaya':                      '0',
+    'Lessaya':                      '1',
     'macray':                       '1',
     'Trapola Morte':                '1',
     'Deathwolffs':                  '1',
@@ -402,10 +402,10 @@ dict_Spartas = {
     'Soldier of Phalanx Dilios':    '1',
     'Tauii':                        '1',
     'Bon Rick':                     '1',
-    'allowishus':                   '0',
+    'allowishus':                   '1',
     'Thobi':                        '1',
     'Huaoban':                      '1',
-    'moonlightx':                   '0',
+    'moonlightx':                   '1',
     'Großmoff Vince':               '1',
     'LittleRock':                   '1',
     'Ursprung89':                   '1',
@@ -415,20 +415,17 @@ dict_Spartas = {
     'TwinStar':                     '1',
     'Mishpoke':                     '1',
     'Soldier of Phalanx Stelios':   '1',
-    'DΛrth JΛkz':                   '0',
+    'DΛrth JΛkz':                   '1',
     'Lieken Urkorn':                '1',
-    'VΛderSeinVΛdder':              '0',
-    'jads':                         '0',
-    'MäMöMüü':                      '1',
+    'VΛderSeinVΛdder':              '1',
+    'jads':                         '1',
     'meister yoguhrt':              '1',
     'Werwolf':                      '1',
     'DarthRevan19':                 '1',
     'todesstern2':                  '1',
     'Masterofd':                    '1',
-    'SuperMajo':                    '1',
     'EatTheWeak':                   '1',
-    'Panuciii':                     '1',
-    'DiGi':                         '0',
+    'DiGi':                         '1',
     'JariLi':                       '1',
     'TommyReini':                   '1',
     'GeneralSkywalker':             '1'
@@ -460,26 +457,141 @@ list_criticalToons = [
 
 dict_cPIT_botTeams = [
     {
-        'team': 'PADME',
+        'team': 'PADME_C3',
+        'uniqueTeamID': '1',
         'teamMember':
         [
-            {'tm1': 'PADMEAMIDALA', 'tm2': 'AHSOKATANO', 'tm3': 'ANAKINKNIGHT', 'tm4': 'GENERALKENOBI', 'tm5': 'C3POLEGENDARY'}
+            {'tm1': 'Padmé Amidala', 'tm2': 'Ahsoka Tano', 'tm3': 'Jedi Knight Anakin', 'tm4': 'General Kenobi', 'tm5': 'C-3PO'}
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 4.5, 'p2': 4.5, 'p3': 4.5, 'p4': 4.5}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 3}
         ],
     },
     {
-        'team': 'GENERALSKYWALKER',
+        'team': 'PADME_R2',
+        'uniqueTeamID': '2',
+        'teamMember':
+        [
+            {'tm1': 'Padmé Amidala', 'tm2': 'Ahsoka Tano', 'tm3': 'Jedi Knight Anakin', 'tm4': 'General Kenobi', 'tm5': 'R2-D2'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 3}
+        ],
+    },
+    {
+        'team': 'PADME_HODA',
+        'uniqueTeamID': '3',
+        'teamMember':
+        [
+            {'tm1': 'Padmé Amidala', 'tm2': 'Ahsoka Tano', 'tm3': 'Jedi Knight Anakin', 'tm4': 'General Kenobi', 'tm5': 'Hermit Yoda'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 3}
+        ],
+    },
+    {
+        'team': 'GAS_501',
+        'uniqueTeamID': '4',
         'teamMember': [
-            {'tm1': 'GENERALSKYWALKER', 'tm2': 'CT7567', 'tm3': 'ARCTROOPER501ST', 'tm4': 'CT210408', 'tm5': 'CT5555'}
+            {'tm1': 'General Skywalker', 'tm2': 'CT-7567 "Rex"', 'tm3': 'ARC Trooper', 'tm4': 'CT-21-0408 "Echo"', 'tm5': 'CT-5555 "Fives"'}
         ],
         'averageDamagePerPhase':
         [
             {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 4}
         ],
+    },
+    {
+        'team': 'SLKR_Wat',
+        'uniqueTeamID': '5',
+        'teamMember': [
+            {'tm1': 'Supreme Leader Kylo Ren', 'tm2': 'Kylo Ren (Unmasked)', 'tm3': 'General Hux', 'tm4': 'Grand Admiral Thrawn', 'tm5': 'Wat Tambor'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 4}
+        ],
+    },
+    {
+        'team': 'VADER_WAT_C3',
+        'uniqueTeamID': '6',
+        'teamMember': [
+            {'tm1': 'Darth Vader', 'tm2': 'Kylo Ren (Unmasked)', 'tm3': 'BB-8', 'tm4': 'C-3PO', 'tm5': 'Wat Tambor'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 15, 'p2': 15, 'p3': 15, 'p4': 15}
+        ],
+    },
+    {
+        'team': 'Rey_Jawa_Wat',
+        'uniqueTeamID': '7',
+        'teamMember': [
+            {'tm1': 'Rey', 'tm2': 'Jawa Scavenger', 'tm3': 'Jawa Engineer', 'tm4': 'Chief Nebit', 'tm5': 'Wat Tambor'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 12, 'p2': 12, 'p3': 12, 'p4': 12}
+        ],
+    },
+    {
+        'team': 'Rey_Jawa_Hoda',
+        'uniqueTeamID': '8',
+        'teamMember': [
+            {'tm1': 'Rey', 'tm2': 'Jawa Scavenger', 'tm3': 'Jawa Engineer', 'tm4': 'Chief Nebit', 'tm5': 'Hermit Yoda'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 11, 'p2': 11, 'p3': 11, 'p4': 11}
+        ],
+    },
+    {
+        'team': 'Rey_Jawa_R2',
+        'uniqueTeamID': '9',
+        'teamMember': [
+            {'tm1': 'Rey', 'tm2': 'Jawa Scavenger', 'tm3': 'Jawa Engineer', 'tm4': 'Chief Nebit', 'tm5': 'R2-D2'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 8, 'p2': 8, 'p3': 8, 'p4': 8}
+        ],
+    },
+    {
+        'team': 'GAS_REY_HODA',
+        'uniqueTeamID': '10',
+        'teamMember': [
+            {'tm1': 'General Skywalker', 'tm2': 'Rey', 'tm3': 'CT-7567 "Rex"', 'tm4': 'CT-5555 "Fives"', 'tm5': 'Hermit Yoda'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 7, 'p2': 7, 'p3': 7, 'p4': 7}
+        ],
+    },
+    {
+        'team': 'SLKR_DAKA_SiT',
+        'uniqueTeamID': '11',
+        'teamMember': [
+            {'tm1': 'Supreme Leader Kylo Ren', 'tm2': 'Old Daka', 'tm3': 'Nightsister Zombie', 'tm4': 'General Hux', 'tm5': 'Sith Empire Trooper'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 5, 'p2': 5, 'p3': 5, 'p4': 5}
+        ],
+    },
+    {
+        'team': 'SLKR_DAKA_HODA',
+        'uniqueTeamID': '12',
+        'teamMember': [
+            {'tm1': 'Supreme Leader Kylo Ren', 'tm2': 'Old Daka', 'tm3': 'Nightsister Zombie', 'tm4': 'General Hux', 'tm5': 'Hermit Yoda'}
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 15, 'p2': 15, 'p3': 15, 'p4': 15}
+        ],
     }
+
 ]
 
 # 'averageDamagePerPhase':
