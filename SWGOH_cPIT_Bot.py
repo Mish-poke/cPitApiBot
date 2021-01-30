@@ -41,10 +41,10 @@ dict_tasks = {
     "task_pit_exportPitTeamOverviewPerGuildMate": 0
 }
 
-useOnlyThisAmountOfGuildMates = 25
-PitTeamCompositionTrys = 5
+useOnlyThisAmountOfGuildMates = 50
+PitTeamCompositionTrys = 1000
 
-allyCodes = [967525461] #836434711
+allyCodes = [556142852] #836434711
 # super STRONG GUild for PIT 967525461
 # FrankElMas's Profile Rebel Assault ... die schaffen wohl den Rancor nicht 614731935
 # allowishus 556142852
@@ -55,7 +55,6 @@ allyCodes = [967525461] #836434711
 
 guildNames = [None] * len(allyCodes)
 playerNames =  [None] * len(allyCodes)
-
 
 
 dict_guildMateNamesAndAllyCodes = {}
@@ -104,8 +103,9 @@ flag_pitTrysDetail_expAvgDamage = "expAvgDamage"
 flag_pitTrysDetail_totalDamageThisPhase = "totalDamageThisPhase"
 
 flag_pitTrySummary_id = "ID"
-flag_pitTrySummary_uniqueIDBasedOnPitTeamIDs = "pit-team-id"
-flag_pitTrySummary_TotalDamage = "Total Damage"
+flag_pitTrySummary_PhasesPassed = "TOTAL Phases FULLY Finished"
+flag_pitTrySummary_LastPhase = "Last Phase Done"
+flag_pitTrySummary_TotalDamageLastPhase = "Damage Reached Phase"
 
 
 
@@ -850,7 +850,7 @@ def func_generateNextPitTry(
                 damageDoneThisPhase+=dict_teamDamageForThisPhase[df_thisGuildMateToons.index[useThisTeam]]
 
                 if damageDoneThisPhase >= 100:
-                    print("no more teams needed, damage level " +str(thisPhase) + " reached")
+                    # print("no more teams needed, damage level " +str(thisPhase) + " reached")
                     break
                 # print(dict_guildMateNamesAndAllyCodes[thisGuildMateID] + " will use " +
                 #       df_thisGuildMateToons.index[useThisTeam] + " in Phase " + str(thisPhase) + " with an expected damage of " +
@@ -863,7 +863,7 @@ def func_generateNextPitTry(
 
             # print(df_thisGuildMateToons.index[useThisTeam])
 
-    print("FINAL dict_teamCompostion: " + str(dict_teamCompostion))
+    # print("FINAL dict_teamCompostion: " + str(dict_teamCompostion))
 
     return dict_teamCompostion, damageDoneThisPhase
 
@@ -882,7 +882,7 @@ def func_createUniquePitTestID(
         else:
             uniqueID = uniqueID + ";0"
 
-    print("### final unique ID: " + str(uniqueID) + "\n")
+    # print("### final unique ID: " + str(uniqueID) + "\n")
     return uniqueID
 
 # ######################################################################################################################
@@ -942,7 +942,16 @@ def func_createEmpyDataframeForAllResults():
         ]
     )
 
-    return df_result
+    df_resultSummary = pd.DataFrame(
+        columns=[
+            flag_pitTrySummary_id,
+            flag_pitTrySummary_PhasesPassed,
+            flag_pitTrySummary_LastPhase,
+            flag_pitTrySummary_TotalDamageLastPhase
+        ]
+    )
+
+    return df_result, df_resultSummary
 
 # ######################################################################################################################
 def func_fillResultDataframe(
@@ -971,16 +980,32 @@ def func_fillResultDataframe(
                 },
                 ignore_index=True
             )
-    # flag_pitTrysDetail_id = "ID"
-    # flag_pitTrysDetail_PitPhase = "PitPhase"
-    # flag_pitTrysDetail_uniqueIDBasedOnPitTeamIDs
-    # flag_pitTrysDetail_AllyName = "AllyName"
-    # flag_pitTrysDetail_AllyGuildCode = "AllyGuildCode"
-    # flag_pitTrysDetail_PitTeam = "PitTeam"
-    # flag_pitTrysDetail_expAvgDamage = "expAvgDamage"
-    # flag_pitTrysDetail_totalDamageThisPhase = "totalDamageThisPhase"
 
     return df_result
+
+# ######################################################################################################################
+def func_fillSummaryDataframe(
+    thisTry,
+    thisPhase,
+    damageDoneThisPhase,
+    df_resultSummary
+):
+    if thisPhase == 4 and damageDoneThisPhase >= 100:
+        phasesPassed = 4
+    else:
+        phasesPassed = thisPhase -1
+
+    df_resultSummary = df_resultSummary.append(
+        {
+            flag_pitTrySummary_id: thisTry,
+            flag_pitTrySummary_LastPhase: thisPhase,
+            flag_pitTrySummary_PhasesPassed: phasesPassed,
+            flag_pitTrySummary_TotalDamageLastPhase: damageDoneThisPhase
+        },
+        ignore_index=True
+    )
+
+    return df_resultSummary
 
 # ######################################################################################################################
 def func_restoreInitialValuesForNextTry(
@@ -1000,9 +1025,8 @@ def func_updateHighGearToonsPerGuildMate(
 ):
     for thisAllycode in dict_teamCompostion:
         thisGuildMate = dict_guildMateNamesAndAllyCodes[thisAllycode]
-
-        print("Deactivate all Team Mates for the used team of " +
-              dict_teamCompostion[thisAllycode] + " for guild mate " + thisGuildMate)
+        # print("Deactivate all Toons in the HighGearRelicTable for the used team of " +
+        #       dict_teamCompostion[thisAllycode] + " for guild mate " + thisGuildMate)
 
         for thisTeam in range(len(dict_cPIT_botTeams)):
             if dict_teamCompostion[thisAllycode] == dict_cPIT_botTeams[thisTeam]['team']:
@@ -1010,11 +1034,11 @@ def func_updateHighGearToonsPerGuildMate(
                     dict_cPIT_botTeams[thisTeam]['teamMember']
                 )
 
-                print("tm1: " + tm1)
-                print("tm2: " + tm2)
-                print("tm3: " + tm3)
-                print("tm4: " + tm4)
-                print("tm5: " + tm5)
+                # print("tm1: " + tm1)
+                # print("tm2: " + tm2)
+                # print("tm3: " + tm3)
+                # print("tm4: " + tm4)
+                # print("tm5: " + tm5)
 
                 df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate] = "USED"
                 df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate] = "USED"
@@ -1024,6 +1048,23 @@ def func_updateHighGearToonsPerGuildMate(
 
 
     return df_pit_HighGearToonsPerGuildMate
+
+# ######################################################################################################################
+def func_exportUpdatedDataframes(
+    exportSubDataframesToCheckAlgo,
+    thisTry, thisPhase,
+    df_pit_HighGearToonsPerGuildMate, df_pitTeamOverviewPerGuildMate
+):
+    if exportSubDataframesToCheckAlgo:
+        df_pit_HighGearToonsPerGuildMate.to_csv(
+            func_getFileNameAndPathForThisFile(
+                str(thisTry) + "_" + str(thisPhase) + "_df_pit_HighGearToonsPerGuildMate" + ".csv"),
+            sep=";")
+
+        df_pitTeamOverviewPerGuildMate.to_csv(
+            func_getFileNameAndPathForThisFile(
+                str(thisTry) + "_" + str(thisPhase) + "_df_pitTeamOverviewPerGuildMate" + ".csv"),
+            sep=";")
 
 
 # ######################################################################################################################
@@ -1065,7 +1106,9 @@ for thisAllyCode in allyCodes:
 
 #region CORE ALGO ... create random pit team compositions to finish that beast
 if dict_tasks["task_doThePitAnalysis"]:
-    df_result = func_createEmpyDataframeForAllResults()
+    exportSubDataframesToCheckAlgo = False
+
+    df_result, df_resultSummary = func_createEmpyDataframeForAllResults()
     dict_uniquePitTeamIDs = func_createDictWithUniquePitTeamIDs()
     func_createDictWithAverageDamagePerPhasePerTeam()
     # print("dict_uniquePitTeamsDamage_p1: " + str(dict_uniquePitTeamsDamage_p1))
@@ -1099,10 +1142,16 @@ if dict_tasks["task_doThePitAnalysis"]:
             df_SUB_pit_HighGearToonsPerGuildMate, df_SUB_pitTeamOverviewPerGuildMate
         )
 
+        if exportSubDataframesToCheckAlgo:
+            df_pitTeamOverviewPerGuildMate.to_csv(
+                func_getFileNameAndPathForThisFile(
+                    str(thisTry) + "_INITAL_" + "_df_pitTeamOverviewPerGuildMate" + ".csv"),
+                sep=";")
+
         thisPhase = 1
         totalDamageDoneThisTry = 0
         print("\n##################################################################### "
-              "### NEXT TRY TO beat the beast ######################################")
+              "### NEXT TRY #" +str(thisTry) + " to beat the beast ######################################")
         while thisPhase <= 4:
             damageDoneThisPhase = 0
             # comments should not be used, code should be self explanatory, but there is quite some complexity involved
@@ -1128,31 +1177,47 @@ if dict_tasks["task_doThePitAnalysis"]:
 
             if damageDoneThisPhase < 100:
                 print("Damage done in Phase " + str(thisPhase) + " is only " + str(damageDoneThisPhase) + " no need to further test, restart with new setup")
+
+                df_resultSummary = func_fillSummaryDataframe(
+                    thisTry, thisPhase, damageDoneThisPhase, df_resultSummary)
+
                 break
             else:
                 print("OH YES! Phase " + str(thisPhase) + " is doable")
+
+                if thisPhase == 4:
+                    df_resultSummary = func_fillSummaryDataframe(
+                        thisTry, thisPhase, damageDoneThisPhase, df_resultSummary)
+
+                #region IMPORATANT >> UPDATE GUILD MATE ROOSTER with available toons!
                 df_pit_HighGearToonsPerGuildMate = \
                     func_updateHighGearToonsPerGuildMate(
                         dict_teamCompostion, df_pit_HighGearToonsPerGuildMate
                     )
 
+                # after updating the guild rooster >> rebuild of PIT TEAM overview
                 df_pitTeamOverviewPerGuildMate = func_fillDataframeWithAvailablePitTeams(
                     df_pitTeamOverviewPerGuildMate,
                     df_pit_HighGearToonsPerGuildMate
                 )
+                #endregion
 
-                df_pitTeamOverviewPerGuildMate.to_csv(
-                    func_getFileNameAndPathForThisFile(str(thisTry) + "_" + str(thisPhase) +"_df_pitTeamOverviewPerGuildMate" + ".csv"),
-                    sep=";")
+                #region export updated dataframes after this pit phase
+                func_exportUpdatedDataframes(exportSubDataframesToCheckAlgo, thisTry, thisPhase,
+                                             df_pit_HighGearToonsPerGuildMate, df_pitTeamOverviewPerGuildMate)
+                #endregion
 
             thisPhase+=1
 
         thisTry+=1
 
     df_result.to_csv(
-        func_getFileNameAndPathForThisFile("df_result" + ".csv"),
+        func_getFileNameAndPathForThisFile("_2_PIT_RESULT_DETAILs" + ".csv"),
         sep=";")
 
+    df_resultSummary.to_csv(
+        func_getFileNameAndPathForThisFile("_1_PIT_RESULT_Overview" + ".csv"),
+        sep=";")
 
 #print(df_guildMasterFile.loc['General Kenobi', 'Daeshara'])
 
