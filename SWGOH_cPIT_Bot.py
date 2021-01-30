@@ -105,7 +105,7 @@ flag_pitTrysDetail_totalDamageThisPhase = "totalDamageThisPhase"
 flag_pitTrySummary_id = "ID"
 flag_pitTrySummary_PhasesPassed = "TOTAL Phases FULLY Finished"
 flag_pitTrySummary_LastPhase = "Last Phase Done"
-flag_pitTrySummary_TotalDamageLastPhase = "Damage Reached Phase"
+flag_pitTrySummary_TotalDamageLastPhase = "Damage Achieved Last Phase"
 
 
 
@@ -840,8 +840,9 @@ def func_generateNextPitTry(
             # print(df_thisGuildMateToons)
 
             # print("len: " + str(len(df_thisGuildMateToons)))
-
-            useThisTeam = random.randint(0, len(df_thisGuildMateToons))
+            #TODO there will be cases when it does not make sense to use a certain team straight forward in phase 1!!!
+            # maybe one should check estimated damage per phase and decide if team should be saved for later
+            useThisTeam = random.randint(1, len(df_thisGuildMateToons))
 
             if useThisTeam > 0:
                 useThisTeam = useThisTeam - 1
@@ -873,14 +874,16 @@ def func_createUniquePitTestID(
     thisTry,
     thisPhase
 ):
-    uniqueID = "#;" + str(thisTry) + ";P" + str(thisPhase)
+    uniqueIDSeperator = "-"
+
+    uniqueID = "#" + uniqueIDSeperator + str(thisTry) + uniqueIDSeperator + "P" + str(thisPhase)
     for thisTeam in dict_teamCompostion:
         if dict_teamCompostion[thisTeam] != const_noTeamThisPhaseFromThisGuildMate:
             # print("we need this teams unique id: " + dict_teamCompostion[thisTeam])
             # print("ID this team: " + dict_uniquePitTeamIDs[dict_teamCompostion[thisTeam]])
-            uniqueID = uniqueID + ";" + dict_uniquePitTeamIDs[dict_teamCompostion[thisTeam]]
+            uniqueID = uniqueID + uniqueIDSeperator + dict_uniquePitTeamIDs[dict_teamCompostion[thisTeam]]
         else:
-            uniqueID = uniqueID + ";0"
+            uniqueID = uniqueID + uniqueIDSeperator + "0"
 
     # print("### final unique ID: " + str(uniqueID) + "\n")
     return uniqueID
@@ -1176,7 +1179,8 @@ if dict_tasks["task_doThePitAnalysis"]:
             df_result = func_fillResultDataframe(thisTry, thisPhase, uniqueID, dict_teamCompostion, df_result)
 
             if damageDoneThisPhase < 100:
-                print("Damage done in Phase " + str(thisPhase) + " is only " + str(damageDoneThisPhase) + " no need to further test, restart with new setup")
+                # print("Damage done in Phase " + str(thisPhase) + " is only " + str(damageDoneThisPhase) + " no need to further test, restart with new setup")
+                print("UPS. " + str(thisPhase) + ": " + str(damageDoneThisPhase) + " ... next try")
 
                 df_resultSummary = func_fillSummaryDataframe(
                     thisTry, thisPhase, damageDoneThisPhase, df_resultSummary)
