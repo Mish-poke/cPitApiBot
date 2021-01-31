@@ -459,7 +459,7 @@ dict_cPIT_botTeams = [
     {
         'team': 'PADME_C3',
         'uniqueTeamID': '1',
-        'source_p1': '',
+        'source_p1': 'https://www.youtube.com/watch?v=3l1EWrP6kZc&ab_channel=DarthKermit',
         'source_p2': '',
         'source_p3': '',
         'source_p4': '',
@@ -475,7 +475,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 5}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 1.5}
         ],
     },
     {
@@ -497,7 +497,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 3}
+            {'p1': 3, 'p2': 2, 'p3': 2, 'p4': 1.5}
         ],
     },
     {
@@ -519,7 +519,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 3}
+            {'p1': 3, 'p2': 2, 'p3': 2, 'p4': 1.5}
         ],
     },
     {
@@ -666,15 +666,15 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 7, 'p2': 5, 'p3': 5, 'p4': 5}
+            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 5}
         ],
     },
     {
         'team': 'SLKR_DAKA_SiT',
         'uniqueTeamID': '11',
         'source_p1': '',
-        'source_p2': '',
-        'source_p3': '',
+        'source_p2': 'https://www.youtube.com/watch?v=pdvR9haidsI&ab_channel=DBofficial125',
+        'source_p3': 'https://www.youtube.com/watch?v=21ZKbaLVz44&t=20s&ab_channel=DV',
         'source_p4': '',
         'teamMember': [
             {
@@ -682,12 +682,12 @@ dict_cPIT_botTeams = [
                 'tm2': 'Old Daka',
                 'tm3': 'Nightsister Zombie',
                 'tm4': 'General Hux',
-                'tm5': 'Sith Empire Trooper'
+                'tm5': 'Sith Trooper'
             }
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 5, 'p2': 5, 'p3': 5, 'p4': 5}
+            {'p1': 5, 'p2': 30, 'p3': 30, 'p4': 5}
         ],
     },
     {
@@ -766,7 +766,7 @@ dict_cPIT_botTeams = [
                 'tm2': 'General Hux',
                 'tm3': 'Kylo Ren (Unmasked)',
                 'tm4': 'First Order Stormtrooper',
-                'tm5': 'Sith Empire Trooper'
+                'tm5': 'Sith Trooper'
             }
         ],
         'averageDamagePerPhase':
@@ -962,6 +962,238 @@ dict_cPIT_botTeams = [
         [
             {'p1': 7, 'p2': 9, 'p3': 7, 'p4': 7}
         ],
+    },
+    {
+        'team': 'xxx',
+        'uniqueTeamID': '25',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=_mYJzutM1k0&ab_channel=Bulldog1205',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Jedi Knight Luke Skywalker',
+                'tm2': 'Jedi Master Luke Skywalker',
+                'tm3': 'General Skywalker',
+                'tm4': 'Jedi Knight Anakin',
+                'tm5': 'General Kenobi'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 7, 'p2': 9, 'p3': 7, 'p4': 7}
+        ],
+    },
+    {
+        'team': 'BH_Aurra_Greef_Kuii',
+        'uniqueTeamID': '26',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=aelatJ5bapU&ab_channel=Vancele',
+        'source_p3': 'https://www.youtube.com/watch?v=aelatJ5bapU&ab_channel=Vancele',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Aurra Sing',
+                'tm2': 'Greef Karga',
+                'tm3': 'Bossk',
+                'tm4': 'Jango Fett',
+                'tm5': 'Kuiil'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 4, 'p2': 6, 'p3': 6, 'p4': 4}
+        ],
+    },
+    {
+        'team': 'JKR_GAS_JKL_REY',
+        'uniqueTeamID': '27',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': 'https://www.youtube.com/watch?v=59YB1r_mcQs&ab_channel=DarthKermit',
+        'teamMember': [
+            {
+                'tm1': 'Jedi Knight Revan',
+                'tm2': 'General Skywalker',
+                'tm3': 'Jedi Knight Luke Skywalker',
+                'tm4': 'Hermit Yoda',
+                'tm5': 'Rey'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 8, 'p2': 8, 'p3': 8, 'p4': 10}
+        ],
+    },
+    {
+        'team': 'HUX_SLKR_HODA',
+        'uniqueTeamID': '28',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=Ki9WyCl4n4k&ab_channel=dc07',
+        'source_p3': 'https://www.youtube.com/watch?v=Ki9WyCl4n4k&ab_channel=dc07',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'General Hux',
+                'tm2': 'Supreme Leader Kylo Ren',
+                'tm3': 'Grand Admiral Thrawn',
+                'tm4': 'Hermit Yoda',
+                'tm5': 'Sith Trooper'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 7, 'p2': 9, 'p3': 9, 'p4': 7}
+        ],
+    },
+    {
+        'team': 'CLS_And_Friends',
+        'uniqueTeamID': '29',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': 'https://www.youtube.com/watch?v=YspGG9YsZaE&ab_channel=Bulldog1205',
+        'source_p4': 'https://www.youtube.com/watch?v=YspGG9YsZaE&ab_channel=Bulldog1205',
+        'teamMember': [
+            {
+                'tm1': 'Commander Luke Skywalker',
+                'tm2': 'Chewbacca',
+                'tm3': 'R2-D2',
+                'tm4': 'Threepio & Chewie',
+                'tm5': 'Han Solo'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 1, 'p2': 1, 'p3': 1.5, 'p4': 1.5}
+        ],
+    },
+    {
+        'team': 'DR_and_Friends',
+        'uniqueTeamID': '30',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Darth Revan',
+                'tm2': 'Bastila Shan (Fallen)',
+                'tm3': 'Darth Malak',
+                'tm4': 'Sith Empire Trooper',
+                'tm5': 'HK-47'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 1, 'p2': 1, 'p3': 1.5, 'p4': 1.5}
+        ],
+    },
+    {
+        'team': 'SLKR_STANDARD_II',
+        'uniqueTeamID': '31',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=I-Yp4D7q8lU&ab_channel=javiermauricio',
+        'source_p3': 'https://www.youtube.com/watch?v=I-Yp4D7q8lU&ab_channel=javiermauricio',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'First Order Officer',
+                'tm3': 'First Order Stormtrooper',
+                'tm4': 'General Hux',
+                'tm5': 'Grand Admiral Thrawn'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 9, 'p2': 11, 'p3': 11, 'p4': 9}
+        ],
+    },
+    {
+        'team': 'GAS_501_C3',
+        'uniqueTeamID': '32',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'General Skywalker',
+                'tm2': 'CT-7567 "Rex"',
+                'tm3': 'C-3PO',
+                'tm4': 'CT-21-0408 "Echo"',
+                'tm5': 'CT-5555 "Fives"'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 2, 'p2': 4, 'p3': 4, 'p4': 2}
+        ],
+    },
+    {
+        'team': 'Shaak_Friends_C3',
+        'uniqueTeamID': '33',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Shaak Ti',
+                'tm2': 'CT-7567 "Rex"',
+                'tm3': 'C-3PO',
+                'tm4': 'CT-21-0408 "Echo"',
+                'tm5': 'CT-5555 "Fives"'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 2, 'p2': 4, 'p3': 4, 'p4': 2}
+        ],
+    },
+    {
+        'team': 'Shaak_Friends',
+        'uniqueTeamID': '34',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=hiCnsRo4QD8&ab_channel=R%C3%A9cseiOliv%C3%A9r',
+        'source_p3': 'https://www.youtube.com/watch?v=hiCnsRo4QD8&ab_channel=R%C3%A9cseiOliv%C3%A9r',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Shaak Ti',
+                'tm2': 'CT-7567 "Rex"',
+                'tm3': 'ARC Trooper',
+                'tm4': 'CT-21-0408 "Echo"',
+                'tm5': 'CT-5555 "Fives"'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 2, 'p2': 5, 'p3': 5, 'p4': 2}
+        ],
+    },
+    {
+        'team': 'Vader_cassian',
+        'uniqueTeamID': '35',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': 'https://www.youtube.com/watch?v=2P9K_j9VVVk&ab_channel=DBofficial125',
+        'teamMember': [
+            {
+                'tm1': 'Darth Vader',
+                'tm2': 'Wat Tambor',
+                'tm3': 'Darth Malak',
+                'tm4': 'Cassian Andor',
+                'tm5': 'BB-8'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 1, 'p2': 1, 'p3': 1, 'p4': 5}
+        ],
     }
+
 
 ]
