@@ -459,9 +459,19 @@ dict_cPIT_botTeams = [
     {
         'team': 'PADME_C3',
         'uniqueTeamID': '1',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember':
         [
-            {'tm1': 'Padmé Amidala', 'tm2': 'Ahsoka Tano', 'tm3': 'Jedi Knight Anakin', 'tm4': 'General Kenobi', 'tm5': 'C-3PO'}
+            {
+                'tm1': 'Padmé Amidala',
+                'tm2': 'Ahsoka Tano',
+                'tm3': 'Jedi Knight Anakin',
+                'tm4': 'General Kenobi',
+                'tm5': 'C-3PO'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -471,9 +481,19 @@ dict_cPIT_botTeams = [
     {
         'team': 'PADME_R2',
         'uniqueTeamID': '2',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember':
         [
-            {'tm1': 'Padmé Amidala', 'tm2': 'Ahsoka Tano', 'tm3': 'Jedi Knight Anakin', 'tm4': 'General Kenobi', 'tm5': 'R2-D2'}
+            {
+                'tm1': 'Padmé Amidala',
+                'tm2': 'Ahsoka Tano',
+                'tm3': 'Jedi Knight Anakin',
+                'tm4': 'General Kenobi',
+                'tm5': 'R2-D2'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -483,9 +503,19 @@ dict_cPIT_botTeams = [
     {
         'team': 'PADME_HODA',
         'uniqueTeamID': '3',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember':
         [
-            {'tm1': 'Padmé Amidala', 'tm2': 'Ahsoka Tano', 'tm3': 'Jedi Knight Anakin', 'tm4': 'General Kenobi', 'tm5': 'Hermit Yoda'}
+            {
+                'tm1': 'Padmé Amidala',
+                'tm2': 'Ahsoka Tano',
+                'tm3': 'Jedi Knight Anakin',
+                'tm4': 'General Kenobi',
+                'tm5': 'Hermit Yoda'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -495,8 +525,18 @@ dict_cPIT_botTeams = [
     {
         'team': 'GAS_501',
         'uniqueTeamID': '4',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'General Skywalker', 'tm2': 'CT-7567 "Rex"', 'tm3': 'ARC Trooper', 'tm4': 'CT-21-0408 "Echo"', 'tm5': 'CT-5555 "Fives"'}
+            {
+                'tm1': 'General Skywalker',
+                'tm2': 'CT-7567 "Rex"',
+                'tm3': 'ARC Trooper',
+                'tm4': 'CT-21-0408 "Echo"',
+                'tm5': 'CT-5555 "Fives"'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -506,8 +546,18 @@ dict_cPIT_botTeams = [
     {
         'team': 'SLKR_Wat',
         'uniqueTeamID': '5',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'Supreme Leader Kylo Ren', 'tm2': 'Kylo Ren (Unmasked)', 'tm3': 'General Hux', 'tm4': 'Grand Admiral Thrawn', 'tm5': 'Wat Tambor'}
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'Kylo Ren (Unmasked)',
+                'tm3': 'General Hux',
+                'tm4': 'Grand Admiral Thrawn',
+                'tm5': 'Wat Tambor'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -517,8 +567,18 @@ dict_cPIT_botTeams = [
     {
         'team': 'VADER_WAT_C3',
         'uniqueTeamID': '6',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'Darth Vader', 'tm2': 'Kylo Ren (Unmasked)', 'tm3': 'BB-8', 'tm4': 'C-3PO', 'tm5': 'Wat Tambor'}
+            {
+                'tm1': 'Darth Vader',
+                'tm2': 'Kylo Ren (Unmasked)',
+                'tm3': 'BB-8',
+                'tm4': 'C-3PO',
+                'tm5': 'Wat Tambor'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -528,19 +588,39 @@ dict_cPIT_botTeams = [
     {
         'team': 'Rey_Jawa_Wat',
         'uniqueTeamID': '7',
+        'source_p1': 'https://www.youtube.com/watch?v=ToP6DqOf90s&ab_channel=AhnaldT101',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'Rey', 'tm2': 'Jawa Scavenger', 'tm3': 'Jawa Engineer', 'tm4': 'Chief Nebit', 'tm5': 'Wat Tambor'}
+            {
+                'tm1': 'Rey',
+                'tm2': 'Jawa Scavenger',
+                'tm3': 'Jawa Engineer',
+                'tm4': 'Chief Nebit',
+                'tm5': 'Wat Tambor'
+            }
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 12, 'p2': 12, 'p3': 12, 'p4': 12}
+            {'p1': 12, 'p2': 10, 'p3': 10, 'p4': 10}
         ],
     },
     {
         'team': 'Rey_Jawa_Hoda',
         'uniqueTeamID': '8',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'Rey', 'tm2': 'Jawa Scavenger', 'tm3': 'Jawa Engineer', 'tm4': 'Chief Nebit', 'tm5': 'Hermit Yoda'}
+            {
+                'tm1': 'Rey',
+                'tm2': 'Jawa Scavenger',
+                'tm3': 'Jawa Engineer',
+                'tm4': 'Chief Nebit',
+                'tm5': 'Hermit Yoda'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -550,8 +630,18 @@ dict_cPIT_botTeams = [
     {
         'team': 'Rey_Jawa_R2',
         'uniqueTeamID': '9',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'Rey', 'tm2': 'Jawa Scavenger', 'tm3': 'Jawa Engineer', 'tm4': 'Chief Nebit', 'tm5': 'R2-D2'}
+            {
+                'tm1': 'Rey',
+                'tm2': 'Jawa Scavenger',
+                'tm3': 'Jawa Engineer',
+                'tm4': 'Chief Nebit',
+                'tm5': 'R2-D2'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -561,19 +651,39 @@ dict_cPIT_botTeams = [
     {
         'team': 'GAS_REY_HODA',
         'uniqueTeamID': '10',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': 'https://www.youtube.com/watch?v=tHOto1REE2M&ab_channel=MNewman',
         'teamMember': [
-            {'tm1': 'General Skywalker', 'tm2': 'Rey', 'tm3': 'CT-7567 "Rex"', 'tm4': 'CT-5555 "Fives"', 'tm5': 'Hermit Yoda'}
+            {
+                'tm1': 'General Skywalker',
+                'tm2': 'Rey',
+                'tm3': 'CT-7567 "Rex"',
+                'tm4': 'CT-5555 "Fives"',
+                'tm5': 'Hermit Yoda'
+            }
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 7, 'p2': 7, 'p3': 7, 'p4': 7}
+            {'p1': 7, 'p2': 5, 'p3': 5, 'p4': 5}
         ],
     },
     {
         'team': 'SLKR_DAKA_SiT',
         'uniqueTeamID': '11',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'Supreme Leader Kylo Ren', 'tm2': 'Old Daka', 'tm3': 'Nightsister Zombie', 'tm4': 'General Hux', 'tm5': 'Sith Empire Trooper'}
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'Old Daka',
+                'tm3': 'Nightsister Zombie',
+                'tm4': 'General Hux',
+                'tm5': 'Sith Empire Trooper'
+            }
         ],
         'averageDamagePerPhase':
         [
@@ -581,30 +691,277 @@ dict_cPIT_botTeams = [
         ],
     },
     {
-        'team': 'SLKR_DAKA_HODA',
+        'team': 'SLKR_DAKA_HUX_HODA',
         'uniqueTeamID': '12',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
         'teamMember': [
-            {'tm1': 'Supreme Leader Kylo Ren', 'tm2': 'Old Daka', 'tm3': 'Nightsister Zombie', 'tm4': 'General Hux', 'tm5': 'Hermit Yoda'}
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'Old Daka',
+                'tm3': 'Nightsister Zombie',
+                'tm4': 'General Hux',
+                'tm5': 'Hermit Yoda'
+            }
         ],
         'averageDamagePerPhase':
         [
             {'p1': 15, 'p2': 15, 'p3': 15, 'p4': 15}
         ],
+    },
+    {
+        'team': 'SLKR_DAKA_HUX_Thrawn',
+        'uniqueTeamID': '13',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=AX9NRQhZjXQ&ab_channel=Bulldog1205',
+        'source_p3': 'https://www.youtube.com/watch?v=21ZKbaLVz44&ab_channel=DV',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'Old Daka',
+                'tm3': 'Nightsister Zombie',
+                'tm4': 'General Hux',
+                'tm5': 'Grand Admiral Thrawn'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 15, 'p2': 30, 'p3': 25, 'p4': 15}
+        ],
+    },
+    {
+        'team': 'SLKR_Keylo_Wat_HUX_Thrawn',
+        'uniqueTeamID': '14',
+        'source_p1': 'https://www.youtube.com/watch?v=RwDnhhMZEb8&ab_channel=Dronf',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'Grand Admiral Thrawn',
+                'tm3': 'Kylo Ren (Unmasked)',
+                'tm4': 'Wat Tambor',
+                'tm5': 'General Hux'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 25, 'p2': 15, 'p3': 14, 'p4': 15}
+        ],
+    },
+    {
+        'team': 'SLKR_STANDARD',
+        'uniqueTeamID': '15',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'General Hux',
+                'tm3': 'Kylo Ren (Unmasked)',
+                'tm4': 'First Order Stormtrooper',
+                'tm5': 'Sith Empire Trooper'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 5, 'p2': 5, 'p3': 5, 'p4': 5}
+        ],
+    },
+    {
+        'team': 'VADER_Shaak_Wat_C3',
+        'uniqueTeamID': '16',
+        'source_p1': 'https://www.youtube.com/watch?v=zLA5mCKKz1E&t=119s&ab_channel=DarthKermit',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Darth Vader',
+                'tm2': 'Kylo Ren (Unmasked)',
+                'tm3': 'Shaak Ti',
+                'tm4': 'C-3PO',
+                'tm5': 'Wat Tambor'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 20, 'p2': 15, 'p3': 15, 'p4': 15}
+        ],
+    },
+    {
+        'team': 'VADER_Wat_BSF_Malak',
+        'uniqueTeamID': '17',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=L7hvznXFIwU&ab_channel=DarthKermit',
+        'source_p3': 'https://www.youtube.com/watch?v=L7hvznXFIwU&ab_channel=DarthKermit',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Darth Vader',
+                'tm2': 'Wat Tambor',
+                'tm3': 'Bastila Shan (Fallen)',
+                'tm4': 'Darth Malak',
+                'tm5': 'Grand Admiral Thrawn'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 6, 'p2': 8, 'p3': 8, 'p4': 6}
+        ],
+    },
+    {
+        'team': 'SLKR_Standard_Thrawn',
+        'uniqueTeamID': '18',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=wLkgUruJSJk&ab_channel=TriPollicis',
+        'source_p3': 'https://www.youtube.com/watch?v=VKyk0C2-GLI&ab_channel=GoldLeaderANZGC',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Supreme Leader Kylo Ren',
+                'tm2': 'General Hux',
+                'tm3': 'Kylo Ren (Unmasked)',
+                'tm4': 'First Order Officer',
+                'tm5': 'Grand Admiral Thrawn'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 10, 'p2': 12, 'p3': 12, 'p4': 10}
+        ],
+    },
+    {
+        'team': 'VADER_PALP',
+        'uniqueTeamID': '19',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=V7DWU6JyOIY&ab_channel=VolkerTexasRanger',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Darth Vader',
+                'tm2': 'Wat Tambor',
+                'tm3': 'Darth Malak',
+                'tm4': 'Grand Admiral Thrawn',
+                'tm5': 'Emperor Palpatine'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 8, 'p2': 10, 'p3': 8, 'p4': 8}
+        ],
+    },
+    {
+        'team': 'REY_C3_Clones_Hermit',
+        'uniqueTeamID': '20',
+        'source_p1': 'https://www.youtube.com/watch?v=9-onv77CRiA&ab_channel=BlubsSWGOH',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Rey',
+                'tm2': 'C-3PO',
+                'tm3': 'CT-7567 "Rex"',
+                'tm4': 'CT-5555 "Fives"',
+                'tm5': 'Hermit Yoda'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 15, 'p2': 13, 'p3': 13, 'p4': 13}
+        ],
+    },
+    {
+        'team': 'VADER_SEE_MALAK',
+        'uniqueTeamID': '21',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': 'https://www.youtube.com/watch?v=3bCQ1LQL58g&t=25s&ab_channel=dc07',
+        'teamMember': [
+            {
+                'tm1': 'Darth Vader',
+                'tm2': 'Sith Eternal Emperor',
+                'tm3': 'Darth Malak',
+                'tm4': 'Wat Tambor',
+                'tm5': 'Darth Sidious'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 2.5, 'p2': 2.5, 'p3': 2.5, 'p4': 4}
+        ],
+    },
+    {
+        'team': 'JKL_GAS_REY',
+        'uniqueTeamID': '22',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': 'https://www.youtube.com/watch?v=K9DHE5x75dM&ab_channel=Bulldog1205',
+        'teamMember': [
+            {
+                'tm1': 'Jedi Knight Luke Skywalker',
+                'tm2': 'General Skywalker',
+                'tm3': 'Rey',
+                'tm4': 'Shaak Ti',
+                'tm5': 'Hermit Yoda'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 6, 'p2': 6, 'p3': 6, 'p4': 8}
+        ],
+    },
+    {
+        'team': 'JKL_JML_GAS',
+        'uniqueTeamID': '23',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': 'https://www.youtube.com/watch?v=_MXN3RhvQ4c&ab_channel=juandelasnieves',
+        'teamMember': [
+            {
+                'tm1': 'Jedi Knight Luke Skywalker',
+                'tm2': 'General Skywalker',
+                'tm3': 'Jedi Master Luke Skywalker',
+                'tm4': 'Jedi Knight Revan',
+                'tm5': 'Hermit Yoda'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 5}
+        ],
+    },
+    {
+        'team': 'JKL_GAS_Kenobi_Anakin',
+        'uniqueTeamID': '24',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=iW_6Aor38eM&ab_channel=LiamRodriguez',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Jedi Knight Luke Skywalker',
+                'tm2': 'General Kenobi',
+                'tm3': 'General Skywalker',
+                'tm4': 'Hermit Yoda',
+                'tm5': 'Jedi Knight Anakin'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 7, 'p2': 9, 'p3': 7, 'p4': 7}
+        ],
     }
 
 ]
-
-# 'averageDamagePerPhase':
-# [
-#     {'p1': 3},
-#     {'p2': 3},
-#     {'p3': 3},
-#     {'p4': 3},
-# ],
-# 'maxDamagePerPhase':
-# [
-#     {'p1': 6},
-#     {'p2': 6},
-#     {'p3': 6},
-#     {'p4': 6},
-# ]
