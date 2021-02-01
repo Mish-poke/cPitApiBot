@@ -525,9 +525,9 @@ dict_cPIT_botTeams = [
     {
         'team': 'GAS_501',
         'uniqueTeamID': '4',
-        'source_p1': '',
-        'source_p2': '',
-        'source_p3': '',
+        'source_p1': 'https://www.youtube.com/watch?v=4K0jcMjI3d0&t=36s&ab_channel=Xnowman',
+        'source_p2': 'https://www.youtube.com/watch?v=oYvgzDNysug&ab_channel=SWGoHNINJA',
+        'source_p3': 'https://www.youtube.com/watch?v=oYvgzDNysug&ab_channel=SWGoHNINJA',
         'source_p4': '',
         'teamMember': [
             {
@@ -540,13 +540,13 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 4}
+            {'p1': 5, 'p2': 4, 'p3': 4, 'p4': 4}
         ],
     },
     {
         'team': 'SLKR_Wat',
         'uniqueTeamID': '5',
-        'source_p1': '',
+        'source_p1': 'https://www.youtube.com/watch?v=j9BRRUrMm24&t=69s&ab_channel=AhnaldT101',
         'source_p2': '',
         'source_p3': '',
         'source_p4': '',
@@ -561,7 +561,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 4}
+            {'p1': 20, 'p2': 15, 'p3': 15, 'p4': 5}
         ],
     },
     {
@@ -687,7 +687,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 5, 'p2': 30, 'p3': 30, 'p4': 5}
+            {'p1': 10, 'p2': 20, 'p3': 20, 'p4': 10}
         ],
     },
     {
@@ -834,7 +834,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 10, 'p2': 12, 'p3': 12, 'p4': 10}
+            {'p1': 7, 'p2': 11, 'p3': 11, 'p4': 7}
         ],
     },
     {

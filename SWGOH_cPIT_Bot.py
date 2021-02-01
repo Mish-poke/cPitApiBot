@@ -41,9 +41,9 @@ dict_tasks = {
     "task_pit_exportPitTeamOverviewPerGuildMate": 0
 }
 
-useOnlyThisAmountOfGuildMates = 5
-PitTeamCompositionTrys = 25
-minRelicLevel = 3
+useOnlyThisAmountOfGuildMates = 50
+PitTeamCompositionTrys = 1500
+minRelicLevel = 5
 
 
 allyCodes = [556142852] #836434711
@@ -123,7 +123,7 @@ flag_pitTrySummary_PhasesPassed = "TOTAL Phases FULLY Finished"
 flag_pitTrySummary_LastPhase = "Last Phase Done"
 flag_pitTrySummary_TotalDamageLastPhase = "Damage Achieved Last Phase"
 
-flag_pitFinalInstruction_Instruction = "What to do"
+flag_pitFinalInstruction_Instruction = "Beat The Beast"
 
 
 
@@ -796,6 +796,19 @@ def func_getTeamMember(
         thisDictElement[0][teamMember_05]
 
 # ######################################################################################################################
+def func_thisTeamMateRelicLevelIsSufficient(
+    thisToonGearRelicLevel
+):
+    # print("this toon relic level " + thisToonGearRelicLevel[1:2])
+    if \
+        thisToonGearRelicLevel[:1] == 'R' and \
+        int(thisToonGearRelicLevel[1:2]) >= minRelicLevel:
+        return True
+
+    return False
+
+
+# ######################################################################################################################
 def func_fillDataframeWithAvailablePitTeams(
     df_pitTeamOverviewPerGuildMate,
     df_pit_HighGearToonsPerGuildMate
@@ -823,6 +836,7 @@ def func_fillDataframeWithAvailablePitTeams(
             #       df_pit_HighGearToonsPerGuildMate.loc[tm4, thisGuildMate])
             # print("tm5: " + tm5 + " R-Level " + thisGuildMate + ": " +
             #       df_pit_HighGearToonsPerGuildMate.loc[tm5, thisGuildMate])
+            func_thisTeamMateRelicLevelIsSufficient(df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate])
             if \
                 df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate][:1] == 'R' and \
                 df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate][:1] == 'R' and \
@@ -1170,13 +1184,6 @@ def func_exportThisFileIntoCSV(
     flagWhat
 ):
     if flagWhat == "df_resultSummary":
-        thisDF = thisDF.sort_values(
-            by=[
-                flag_pitTrySummary_LastPhase,
-                flag_pitTrySummary_TotalDamageLastPhase
-            ], ascending=False
-        )
-
         thisDF.to_csv(
             func_getFileNameAndPathForThisFile("_1_PIT_RESULT_Overview" + ".csv"),
             sep=";", index=False)
@@ -1221,7 +1228,7 @@ def func_checkIfRelicLevelAreMissing(
         df_guildMasterFile.loc[pitTeamMember, thisGuildMate] != "R6" and \
         df_guildMasterFile.loc[pitTeamMember, thisGuildMate] != "R7" and \
         df_guildMasterFile.loc[pitTeamMember, thisGuildMate] != "R8":
-        putSomeRelicsOn = putSomeRelicsOn + "(" + pitTeamMember + " only " +  df_guildMasterFile.loc[pitTeamMember, thisGuildMate] + ")"
+        putSomeRelicsOn = putSomeRelicsOn + "(" + pitTeamMember + " only " +  df_guildMasterFile.loc[pitTeamMember, thisGuildMate] + ") "
 
     return putSomeRelicsOn
 
@@ -1234,20 +1241,20 @@ def func_getNamesOfAllGuildMatesUsingThisTeam(
     for thisGuildMate in subDF_guildMatesWithThatTeamInThatPhase[flag_pitTrysDetail_AllyName].unique():
         print("team was used by: " + thisGuildMate)
 
-        putSomeRelicsOn = "some relics missing for: "
+        putSomeRelicsOn = " ... Relicts missing for: "
         putSomeRelicsOn = func_checkIfRelicLevelAreMissing(thisGuildMate, tm1, putSomeRelicsOn)
         putSomeRelicsOn = func_checkIfRelicLevelAreMissing(thisGuildMate, tm2, putSomeRelicsOn)
         putSomeRelicsOn = func_checkIfRelicLevelAreMissing(thisGuildMate, tm3, putSomeRelicsOn)
         putSomeRelicsOn = func_checkIfRelicLevelAreMissing(thisGuildMate, tm4, putSomeRelicsOn)
         putSomeRelicsOn = func_checkIfRelicLevelAreMissing(thisGuildMate, tm5, putSomeRelicsOn)
 
-        if len(putSomeRelicsOn) == len("some relics missing for: "):
+        if len(putSomeRelicsOn) == len(" ... Relicts missing for: "):
             putSomeRelicsOn = " ... all toons at perfect relic level"
 
         if len(guildMateString) == 0:
-            guildMateString = guildMateString + "@" + thisGuildMate + putSomeRelicsOn
+            guildMateString = guildMateString + "@" + thisGuildMate + putSomeRelicsOn + "\n"
         else:
-            guildMateString = "\n" + guildMateString + "@" + thisGuildMate + putSomeRelicsOn
+            guildMateString = guildMateString + "@" + thisGuildMate + putSomeRelicsOn + "\n"
 
     return guildMateString
 
@@ -1284,7 +1291,7 @@ def func_createFinalResult(
                     videoPath = dict_cPIT_botTeams[thisTeamPitTeam][videoDictElementThisPhase]
 
 
-            str_thisInstruction = ("### PIT TEAM: " + \
+            str_thisInstruction = ("###############################\n# PIT TEAM: " + \
                 "1. " + str(tm1) + " / " + \
                 "2. " + str(tm2) + " / " + \
                 "3. " + str(tm3) + " / " + \
@@ -1293,7 +1300,7 @@ def func_createFinalResult(
             )
             df_finalInstruction = func_appendThisString(df_finalInstruction, str_thisInstruction)
 
-            str_thisInstruction = ("Please aim for " + str(dict_teamDamageForThisPhase[thisPitTeam]) + "% damage")
+            str_thisInstruction = (">>> TARGET DAMAGE: " + str(dict_teamDamageForThisPhase[thisPitTeam]) + "% <<<")
             df_finalInstruction = func_appendThisString(df_finalInstruction, str_thisInstruction)
 
             subDF_guildMatesWithThatTeamInThatPhase = df_bestResult[
@@ -1305,14 +1312,16 @@ def func_createFinalResult(
                 subDF_guildMatesWithThatTeamInThatPhase, tm1, tm2, tm3, tm4, tm5
             )
 
-            guildMateString = "# Please use this team \n" + guildMateString
-            df_finalInstruction = func_appendThisString(df_finalInstruction, guildMateString)
+            # there are cases where teams are used in other phases and should therefore not show up as empty string
+            if len(guildMateString) > 0:
+                guildMateString = "# Please use this team \n" + guildMateString
+                df_finalInstruction = func_appendThisString(df_finalInstruction, guildMateString)
 
-            str_education = ""
-            if len(videoPath) > 0:
-                str_education = "sample video for this team & phase: " + videoPath
+                str_education = ""
+                if len(videoPath) > 0:
+                    str_education = "sample video for this team & phase: " + videoPath
 
-            df_finalInstruction = func_appendThisString(df_finalInstruction, str_education)
+                df_finalInstruction = func_appendThisString(df_finalInstruction, str_education)
 
         thisPhase+=1
 
@@ -1483,6 +1492,13 @@ if dict_tasks["task_doThePitAnalysis"]:
             thisPhase+=1
 
         thisTry+=1
+
+    df_resultSummary = df_resultSummary.sort_values(
+        by=[
+            flag_pitTrySummary_LastPhase,
+            flag_pitTrySummary_TotalDamageLastPhase
+        ], ascending=False
+    )
 
     func_exportThisFileIntoCSV(df_resultSummary, "df_resultSummary")
 
