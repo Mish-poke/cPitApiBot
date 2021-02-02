@@ -540,7 +540,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 5, 'p2': 4, 'p3': 4, 'p4': 4}
+            {'p1': 5, 'p2': 4, 'p3': 4, 'p4': 2}
         ],
     },
     {
@@ -561,7 +561,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 20, 'p2': 15, 'p3': 15, 'p4': 5}
+            {'p1': 20, 'p2': 12, 'p3': 12, 'p4': 3}
         ],
     },
     {
@@ -582,7 +582,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 15, 'p2': 15, 'p3': 15, 'p4': 15}
+            {'p1': 15, 'p2': 15, 'p3': 15, 'p4': 3}
         ],
     },
     {
@@ -603,7 +603,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 12, 'p2': 10, 'p3': 10, 'p4': 10}
+            {'p1': 12, 'p2': 8, 'p3': 8, 'p4': 3}
         ],
     },
     {
@@ -624,32 +624,11 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 11, 'p2': 11, 'p3': 11, 'p4': 11}
+            {'p1': 11, 'p2': 8, 'p3': 8, 'p4': 3}
         ],
     },
     {
-        'team': 'Rey_Jawa_R2',
-        'uniqueTeamID': '9',
-        'source_p1': '',
-        'source_p2': '',
-        'source_p3': '',
-        'source_p4': '',
-        'teamMember': [
-            {
-                'tm1': 'Rey',
-                'tm2': 'Jawa Scavenger',
-                'tm3': 'Jawa Engineer',
-                'tm4': 'Chief Nebit',
-                'tm5': 'R2-D2'
-            }
-        ],
-        'averageDamagePerPhase':
-        [
-            {'p1': 8, 'p2': 8, 'p3': 8, 'p4': 8}
-        ],
-    },
-    {
-        'team': 'GAS_REY_HODA',
+        'team': 'GAS_REY_5s_HODA',
         'uniqueTeamID': '10',
         'source_p1': '',
         'source_p2': '',
@@ -666,7 +645,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 5}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 5}
         ],
     },
     {
@@ -687,13 +666,13 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 10, 'p2': 20, 'p3': 20, 'p4': 10}
+            {'p1': 10, 'p2': 20, 'p3': 20, 'p4': 2}
         ],
     },
     {
         'team': 'SLKR_DAKA_HUX_HODA',
         'uniqueTeamID': '12',
-        'source_p1': '',
+        'source_p1': 'https://www.youtube.com/watch?v=C_vhksC346s&ab_channel=ItsJustIan',
         'source_p2': '',
         'source_p3': '',
         'source_p4': '',
@@ -708,7 +687,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 15, 'p2': 15, 'p3': 15, 'p4': 15}
+            {'p1': 14, 'p2': 10, 'p3': 10, 'p4': 2}
         ],
     },
     {
@@ -729,7 +708,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 15, 'p2': 30, 'p3': 25, 'p4': 15}
+            {'p1': 15, 'p2': 20, 'p3': 20, 'p4': 2}
         ],
     },
     {
@@ -750,15 +729,15 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 25, 'p2': 15, 'p3': 14, 'p4': 15}
+            {'p1': 25, 'p2': 12, 'p3': 12, 'p4': 2}
         ],
     },
     {
         'team': 'SLKR_STANDARD',
         'uniqueTeamID': '15',
         'source_p1': '',
-        'source_p2': '',
-        'source_p3': '',
+        'source_p2': 'https://www.youtube.com/watch?v=APxHEmWs0oY&ab_channel=DarthKermit',
+        'source_p3': 'https://www.youtube.com/watch?v=APxHEmWs0oY&ab_channel=DarthKermit',
         'source_p4': '',
         'teamMember': [
             {
@@ -771,7 +750,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 5, 'p2': 5, 'p3': 5, 'p4': 5}
+            {'p1': 5, 'p2': 8, 'p3': 8, 'p4': 2}
         ],
     },
     {
@@ -792,7 +771,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 20, 'p2': 15, 'p3': 15, 'p4': 15}
+            {'p1': 15, 'p2': 8, 'p3': 8, 'p4': 2}
         ],
     },
     {
@@ -813,7 +792,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 6, 'p2': 8, 'p3': 8, 'p4': 6}
+            {'p1': 5, 'p2': 8, 'p3': 8, 'p4': 3}
         ],
     },
     {
@@ -876,7 +855,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 15, 'p2': 13, 'p3': 13, 'p4': 13}
+                {'p1': 15, 'p2': 8, 'p3': 8, 'p4': 2}
         ],
     },
     {
@@ -918,7 +897,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 6, 'p2': 6, 'p3': 6, 'p4': 8}
+            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 6}
         ],
     },
     {
@@ -947,7 +926,7 @@ dict_cPIT_botTeams = [
         'uniqueTeamID': '24',
         'source_p1': '',
         'source_p2': 'https://www.youtube.com/watch?v=iW_6Aor38eM&ab_channel=LiamRodriguez',
-        'source_p3': '',
+        'source_p3': 'https://www.youtube.com/watch?v=iW_6Aor38eM&ab_channel=LiamRodriguez',
         'source_p4': '',
         'teamMember': [
             {
@@ -960,7 +939,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 7, 'p2': 9, 'p3': 7, 'p4': 7}
+            {'p1': 4, 'p2': 8, 'p3': 8, 'p4': 2}
         ],
     },
     {
@@ -1023,7 +1002,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 8, 'p2': 8, 'p3': 8, 'p4': 10}
+            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 8}
         ],
     },
     {
@@ -1192,6 +1171,48 @@ dict_cPIT_botTeams = [
         'averageDamagePerPhase':
         [
             {'p1': 1, 'p2': 1, 'p3': 1, 'p4': 5}
+        ],
+    },
+    {
+        'team': 'VADER_PALP_WAT_KRU',
+        'uniqueTeamID': '36',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=p28XBjvmD6o&ab_channel=DenmachSWGOHDenmach%237643',
+        'source_p3': 'https://www.youtube.com/watch?v=p28XBjvmD6o&ab_channel=DenmachSWGOHDenmach%237643',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Darth Vader',
+                'tm2': 'Emperor Palpatine',
+                'tm3': 'Grand Admiral Thrawn',
+                'tm4': 'Wat Tambor',
+                'tm5': 'Kylo Ren (Unmasked)'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 3, 'p2': 5, 'p3': 5, 'p4': 1.5}
+        ],
+    },
+    {
+        'team': 'GAS_REY_ARC_HODA',
+        'uniqueTeamID': '37',
+        'source_p1': '',
+        'source_p2': '',
+        'source_p3': '',
+        'source_p4': 'https://www.youtube.com/watch?v=L4UfUwU1AJI&ab_channel=Bulldog1205',
+        'teamMember': [
+            {
+                'tm1': 'General Skywalker',
+                'tm2': 'Rey',
+                'tm3': 'CT-7567 "Rex"',
+                'tm4': 'ARC Trooper',
+                'tm5': 'Hermit Yoda'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 5}
         ],
     }
 

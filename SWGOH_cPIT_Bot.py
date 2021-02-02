@@ -43,7 +43,8 @@ dict_tasks = {
 
 useOnlyThisAmountOfGuildMates = 50
 PitTeamCompositionTrys = 1500
-minRelicLevel = 5
+minRelicLevel = 4
+safetyDamageInPercentToCompensateFailedTrys = 10
 
 
 allyCodes = [556142852] #836434711
@@ -803,6 +804,8 @@ def func_thisTeamMateRelicLevelIsSufficient(
     if \
         thisToonGearRelicLevel[:1] == 'R' and \
         int(thisToonGearRelicLevel[1:2]) >= minRelicLevel:
+        # print("enough relicts @ level: " + thisToonGearRelicLevel[1:2])
+
         return True
 
     return False
@@ -836,13 +839,20 @@ def func_fillDataframeWithAvailablePitTeams(
             #       df_pit_HighGearToonsPerGuildMate.loc[tm4, thisGuildMate])
             # print("tm5: " + tm5 + " R-Level " + thisGuildMate + ": " +
             #       df_pit_HighGearToonsPerGuildMate.loc[tm5, thisGuildMate])
-            func_thisTeamMateRelicLevelIsSufficient(df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate])
+
+            # if \
+            # df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate][:1] == 'R' and \
+            # df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate][:1] == 'R' and \
+            # df_pit_HighGearToonsPerGuildMate.loc[tm3, thisGuildMate][:1] == 'R' and \
+            # df_pit_HighGearToonsPerGuildMate.loc[tm4, thisGuildMate][:1] == 'R' and \
+            # df_pit_HighGearToonsPerGuildMate.loc[tm5, thisGuildMate][:1] == 'R':
+
             if \
-                df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate][:1] == 'R' and \
-                df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate][:1] == 'R' and \
-                df_pit_HighGearToonsPerGuildMate.loc[tm3, thisGuildMate][:1] == 'R' and \
-                df_pit_HighGearToonsPerGuildMate.loc[tm4, thisGuildMate][:1] == 'R' and \
-                df_pit_HighGearToonsPerGuildMate.loc[tm5, thisGuildMate][:1] == 'R':
+                func_thisTeamMateRelicLevelIsSufficient(df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate]) and \
+                func_thisTeamMateRelicLevelIsSufficient(df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate]) and \
+                func_thisTeamMateRelicLevelIsSufficient(df_pit_HighGearToonsPerGuildMate.loc[tm3, thisGuildMate]) and \
+                func_thisTeamMateRelicLevelIsSufficient(df_pit_HighGearToonsPerGuildMate.loc[tm4, thisGuildMate]) and \
+                func_thisTeamMateRelicLevelIsSufficient(df_pit_HighGearToonsPerGuildMate.loc[tm5, thisGuildMate]):
 
                 df_pitTeamOverviewPerGuildMate.loc[dict_cPIT_botTeams[thisTeam]['team'], thisGuildMate] = 1
                 if logDetailsIfSquadIsAvailable:
@@ -855,6 +865,30 @@ def func_fillDataframeWithAvailablePitTeams(
     return df_pitTeamOverviewPerGuildMate
 
 # ######################################################################################################################
+def func_createListWithRandomAllyOrder(
+    list_randomAllyOrder
+):
+    keys_list = list(dict_guildMateNamesAndAllyCodes)
+    # print("keys_list before random mix in new list: " + str(keys_list))
+
+    while len(list_randomAllyOrder) < useOnlyThisAmountOfGuildMates:
+        nextRandomNumber = random.randrange(0, useOnlyThisAmountOfGuildMates)
+        # print("nextRandomNumber: " + str(nextRandomNumber))
+        nextRandomNumber = keys_list[nextRandomNumber]
+        # print("nextRandomNumber: " + str(nextRandomNumber))
+        if nextRandomNumber not in list_randomAllyOrder:
+            # print("add this number in list")
+            list_randomAllyOrder.append(nextRandomNumber)
+        # else:
+        #     print("nextRandomNumber already in list, next one")
+
+        # print("len(list_randomAllyOrder) " + str(len(list_randomAllyOrder)))
+
+    # print("using this guild mate order for the next pit try: " +str(list_randomAllyOrder))
+
+    return list_randomAllyOrder
+
+# ######################################################################################################################
 def func_generateNextPitTry(
     thisPhase,
     phaseTag,
@@ -865,7 +899,12 @@ def func_generateNextPitTry(
     dict_teamCompostion.clear()
     totalPitTeamsNeeded = 0
 
-    for thisGuildMateID in dict_guildMateNamesAndAllyCodes:
+    list_randomAllyOrder = list()
+    list_randomAllyOrder = func_createListWithRandomAllyOrder(list_randomAllyOrder)
+
+    # for thisGuildMateID in dict_guildMateNamesAndAllyCodes:
+    for thisGuildMateID in list_randomAllyOrder:
+        # print("using this next thisGuildMateID: " + str(thisGuildMateID))
         # print(dict_guildMateNamesAndAllyCodes[thisGuildMateID])
 
         df_thisGuildMateToons = df_pitTeamOverviewPerGuildMate[
@@ -878,28 +917,30 @@ def func_generateNextPitTry(
             # print("len: " + str(len(df_thisGuildMateToons)))
             #TODO there will be cases when it does not make sense to use a certain team straight forward in phase 1!!!
             # maybe one should check estimated damage per phase and decide if team should be saved for later
-            useThisTeam = random.randint(1, len(df_thisGuildMateToons))
+            randomPitTeamThisGuildMate = random.randint(1, len(df_thisGuildMateToons))
 
-            if useThisTeam > 0:
+            if randomPitTeamThisGuildMate > 0:
                 totalPitTeamsNeeded+=1
-                useThisTeam = useThisTeam - 1
-                dict_teamCompostion[thisGuildMateID] = df_thisGuildMateToons.index[useThisTeam]
+                randomPitTeamThisGuildMate = randomPitTeamThisGuildMate - 1
+                dict_teamCompostion[thisGuildMateID] = df_thisGuildMateToons.index[randomPitTeamThisGuildMate]
 
-                damageDoneThisPhase+=dict_teamDamageForThisPhase[df_thisGuildMateToons.index[useThisTeam]]
+                damageDoneThisPhase+=dict_teamDamageForThisPhase[
+                    df_thisGuildMateToons.index[randomPitTeamThisGuildMate]
+                ]
 
-                if damageDoneThisPhase >= 100:
+                if damageDoneThisPhase >= 100 + safetyDamageInPercentToCompensateFailedTrys:
                     # print("no more teams needed, damage level " +str(thisPhase) + " reached")
                     break
                 # print(dict_guildMateNamesAndAllyCodes[thisGuildMateID] + " will use " +
-                #       df_thisGuildMateToons.index[useThisTeam] + " in Phase " + str(thisPhase) + " with an expected damage of " +
-                #       str(dict_teamDamageForThisPhase[df_thisGuildMateToons.index[useThisTeam]])
+                #       df_thisGuildMateToons.index[randomPitTeamThisGuildMate] + " in Phase " + str(thisPhase) + " with an expected damage of " +
+                #       str(dict_teamDamageForThisPhase[df_thisGuildMateToons.index[randomPitTeamThisGuildMate]])
                 #       )
             else:
                 # there will be cases that its better to not use a certain team from a guild mate in a phase to save
                 # it for the next phase
                 dict_teamCompostion[thisGuildMateID] = const_noTeamThisPhaseFromThisGuildMate
 
-            # print(df_thisGuildMateToons.index[useThisTeam])
+            # print(df_thisGuildMateToons.index[randomPitTeamThisGuildMate])
 
     # print("FINAL dict_teamCompostion: " + str(dict_teamCompostion))
 
@@ -1290,6 +1331,18 @@ def func_createFinalResult(
 
                     videoPath = dict_cPIT_botTeams[thisTeamPitTeam][videoDictElementThisPhase]
 
+            subDF_guildMatesWithThatTeamInThatPhase = df_bestResult[
+                (df_bestResult[flag_pitTrysDetail_PitTeam] == thisPitTeam) &
+                (df_bestResult[flag_pitTrysDetail_PitPhase] == thisPhase)
+                ]
+
+            guildMateString = func_getNamesOfAllGuildMatesUsingThisTeam(
+                subDF_guildMatesWithThatTeamInThatPhase, tm1, tm2, tm3, tm4, tm5
+            )
+
+            # there are cases where teams are used in other phases and should therefore not show up as empty string
+            if len(guildMateString) == 0:
+                continue
 
             str_thisInstruction = ("###############################\n# PIT TEAM: " + \
                 "1. " + str(tm1) + " / " + \
@@ -1303,25 +1356,16 @@ def func_createFinalResult(
             str_thisInstruction = (">>> TARGET DAMAGE: " + str(dict_teamDamageForThisPhase[thisPitTeam]) + "% <<<")
             df_finalInstruction = func_appendThisString(df_finalInstruction, str_thisInstruction)
 
-            subDF_guildMatesWithThatTeamInThatPhase = df_bestResult[
-                (df_bestResult[flag_pitTrysDetail_PitTeam] == thisPitTeam) &
-                (df_bestResult[flag_pitTrysDetail_PitPhase] == thisPhase)
-            ]
 
-            guildMateString = func_getNamesOfAllGuildMatesUsingThisTeam(
-                subDF_guildMatesWithThatTeamInThatPhase, tm1, tm2, tm3, tm4, tm5
-            )
 
-            # there are cases where teams are used in other phases and should therefore not show up as empty string
-            if len(guildMateString) > 0:
-                guildMateString = "# Please use this team \n" + guildMateString
-                df_finalInstruction = func_appendThisString(df_finalInstruction, guildMateString)
+            guildMateString = "# Please use this team \n" + guildMateString
+            df_finalInstruction = func_appendThisString(df_finalInstruction, guildMateString)
 
-                str_education = ""
-                if len(videoPath) > 0:
-                    str_education = "sample video for this team & phase: " + videoPath
+            str_education = ""
+            if len(videoPath) > 0:
+                str_education = "sample video for this team & phase: " + videoPath
 
-                df_finalInstruction = func_appendThisString(df_finalInstruction, str_education)
+            df_finalInstruction = func_appendThisString(df_finalInstruction, str_education)
 
         thisPhase+=1
 
@@ -1363,6 +1407,10 @@ for thisAllyCode in allyCodes:
     listOf_guildMasterFile.append(df_guildMasterFile)
     listOf_glsOnly.append(df_glsOnly)
     listOf_criticalToons.append(df_criticalToons)
+
+    # print("### dict_guildMateNamesAndAllyCodes ###")
+    # print(dict_guildMateNamesAndAllyCodes)
+
 
 #region CORE ALGO ... create random pit team compositions to finish that beast
 if dict_tasks["task_doThePitAnalysis"]:
@@ -1432,7 +1480,7 @@ if dict_tasks["task_doThePitAnalysis"]:
 
             totalPitTeamsNeededThisTry+= totalPitTeamsNeededThisPhase
 
-            if damageDoneThisPhase >= 100:
+            if damageDoneThisPhase >= 100 + safetyDamageInPercentToCompensateFailedTrys:
                 totalDamageDoneThisTry+= 100
             else:
                 totalDamageDoneThisTry+= damageDoneThisPhase
@@ -1440,7 +1488,7 @@ if dict_tasks["task_doThePitAnalysis"]:
             uniqueID = func_createUniquePitTestID(dict_teamCompostion, thisTry, thisPhase)
 
             if uniqueID in df_resultAllDetails.values:
-                if totalDamageDoneThisTry < 100:
+                if totalDamageDoneThisTry < 100 + safetyDamageInPercentToCompensateFailedTrys:
                     print("Unique ID ("+str(uniqueID)+") available >> this setup was tested before with only "+str(totalDamageDoneThisTry)+"% damage >> create new one")
 
                     if setupsCreatedThisPhase < 10:
@@ -1458,7 +1506,7 @@ if dict_tasks["task_doThePitAnalysis"]:
 
             if damageDoneThisPhase < 100:
                 # print("Damage done in Phase " + str(thisPhase) + " is only " + str(damageDoneThisPhase) + " no need to further test, restart with new setup")
-                print("UPS. " + str(thisPhase) + " damange only: " + str(damageDoneThisPhase) + "% ... next try")
+                print("UPS. " + str(thisPhase) + " damage only: " + str(damageDoneThisPhase) + "% ... next try")
 
                 df_resultSummary = func_fillSummaryDataframe(
                     thisTry, thisPhase, damageDoneThisPhase, totalPitTeamsNeededThisTry, df_resultSummary)
