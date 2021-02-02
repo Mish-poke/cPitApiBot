@@ -38,12 +38,12 @@ dict_tasks = {
     "task_ignoreMissingGuildMates": 0,
     "task_doThePitAnalysis": 1,
     "task_pit_exportHighRelicToonsNeededForPit": 0,
-    "task_pit_exportPitTeamOverviewPerGuildMate": 0
+    "task_pit_exportPitTeamOverviewPerGuildMate": 1
 }
 
-useOnlyThisAmountOfGuildMates = 50
-PitTeamCompositionTrys = 1500
-minRelicLevel = 4
+useOnlyThisAmountOfGuildMates = 7
+PitTeamCompositionTrys = 10
+minRelicLevel = 3
 safetyDamageInPercentToCompensateFailedTrys = 10
 
 
@@ -868,11 +868,17 @@ def func_fillDataframeWithAvailablePitTeams(
 def func_createListWithRandomAllyOrder(
     list_randomAllyOrder
 ):
+    # TODO fix this fucking function
     keys_list = list(dict_guildMateNamesAndAllyCodes)
-    # print("keys_list before random mix in new list: " + str(keys_list))
+    print("keys_list before random mix in new list: " + str(keys_list))
+    print("len(keys_list) + " + str(len(keys_list)))
 
-    while len(list_randomAllyOrder) < useOnlyThisAmountOfGuildMates:
-        nextRandomNumber = random.randrange(0, useOnlyThisAmountOfGuildMates)
+    maxRandomNumberAllowed = useOnlyThisAmountOfGuildMates
+    if useOnlyThisAmountOfGuildMates > len(keys_list):
+        maxRandomNumberAllowed = len(keys_list)
+
+    while len(list_randomAllyOrder) < maxRandomNumberAllowed:
+        nextRandomNumber = random.randrange(0, maxRandomNumberAllowed)
         # print("nextRandomNumber: " + str(nextRandomNumber))
         nextRandomNumber = keys_list[nextRandomNumber]
         # print("nextRandomNumber: " + str(nextRandomNumber))
@@ -884,7 +890,7 @@ def func_createListWithRandomAllyOrder(
 
         # print("len(list_randomAllyOrder) " + str(len(list_randomAllyOrder)))
 
-    # print("using this guild mate order for the next pit try: " +str(list_randomAllyOrder))
+    print("using this guild mate order for the next pit try: " +str(list_randomAllyOrder))
 
     return list_randomAllyOrder
 
@@ -896,6 +902,7 @@ def func_generateNextPitTry(
     dict_teamDamageForThisPhase,
     df_pitTeamOverviewPerGuildMate
 ):
+
     dict_teamCompostion.clear()
     totalPitTeamsNeeded = 0
 
@@ -907,26 +914,69 @@ def func_generateNextPitTry(
         # print("using this next thisGuildMateID: " + str(thisGuildMateID))
         # print(dict_guildMateNamesAndAllyCodes[thisGuildMateID])
 
+        df_thisGuildMateToons = pd.DataFrame()
+
         df_thisGuildMateToons = df_pitTeamOverviewPerGuildMate[
             df_pitTeamOverviewPerGuildMate[dict_guildMateNamesAndAllyCodes[thisGuildMateID]] == 1]
 
-        # if dict_guildMateNamesAndAllyCodes[thisGuildMateID] == 'Leonidas':
         if len(df_thisGuildMateToons) > 0:
             # print(df_thisGuildMateToons)
+            # print(" ### guildMate : " + dict_guildMateNamesAndAllyCodes[thisGuildMateID])
 
             # print("len: " + str(len(df_thisGuildMateToons)))
             #TODO there will be cases when it does not make sense to use a certain team straight forward in phase 1!!!
             # maybe one should check estimated damage per phase and decide if team should be saved for later
+
+            useTeamWithHighestDamage = random.randint(1, 10)
+            if useTeamWithHighestDamage >= 8:
+                useTeamWithHighestDamage = 1
+            else:
+                useTeamWithHighestDamage = 0
+
             randomPitTeamThisGuildMate = random.randint(1, len(df_thisGuildMateToons))
+
+            thisTeamNumber = 0
+            highestDamageDone = 0
+            teamNameHighestDamage = ""
+            if useTeamWithHighestDamage:
+                while thisTeamNumber < len(df_thisGuildMateToons):
+                    # print(df_thisGuildMateToons.index[thisTeamNumber])
+
+                    thisTeamDamage = dict_teamDamageForThisPhase[
+                        df_thisGuildMateToons.index[thisTeamNumber]
+                    ]
+
+                    if thisTeamDamage > highestDamageDone:
+                        teamNameHighestDamage = df_thisGuildMateToons.index[thisTeamNumber]
+                        highestDamageDone = thisTeamDamage
+
+                    thisTeamNumber += 1
+
+                # print("useTeamWithHighestDamage in this phase for " +  dict_guildMateNamesAndAllyCodes[thisGuildMateID] + " = " + teamNameHighestDamage)
 
             if randomPitTeamThisGuildMate > 0:
                 totalPitTeamsNeeded+=1
                 randomPitTeamThisGuildMate = randomPitTeamThisGuildMate - 1
-                dict_teamCompostion[thisGuildMateID] = df_thisGuildMateToons.index[randomPitTeamThisGuildMate]
+                # print("thisPitTeam: " + df_thisGuildMateToons.index[randomPitTeamThisGuildMate])
 
-                damageDoneThisPhase+=dict_teamDamageForThisPhase[
-                    df_thisGuildMateToons.index[randomPitTeamThisGuildMate]
-                ]
+                if useTeamWithHighestDamage == 0:
+                    # print("use a random team")
+                    dict_teamCompostion[thisGuildMateID] = df_thisGuildMateToons.index[randomPitTeamThisGuildMate]
+
+                    damageDoneThisPhase+=dict_teamDamageForThisPhase[
+                        df_thisGuildMateToons.index[randomPitTeamThisGuildMate]
+                    ]
+                else:
+                    # print("useTeamWithHighestDamage in this phase for " + dict_guildMateNamesAndAllyCodes[
+                    #           thisGuildMateID] + " = " +
+                    #       teamNameHighestDamage
+                    #     )
+
+                    dict_teamCompostion[thisGuildMateID] = teamNameHighestDamage
+
+                    damageDoneThisPhase += dict_teamDamageForThisPhase[
+                        teamNameHighestDamage
+                    ]
 
                 if damageDoneThisPhase >= 100 + safetyDamageInPercentToCompensateFailedTrys:
                     # print("no more teams needed, damage level " +str(thisPhase) + " reached")
@@ -1229,22 +1279,35 @@ def func_exportThisFileIntoCSV(
             func_getFileNameAndPathForThisFile("_1_PIT_RESULT_Overview" + ".csv"),
             sep=";", index=False)
 
+        return
+
     if flagWhat == "df_resultAllDetails":
         thisDF.to_csv(
             func_getFileNameAndPathForThisFile("_2_PIT_RESULT_DETAILs" + ".csv"),
             sep=";", index=False)
+
+        return
 
     if flagWhat == "df_bestResult":
         thisDF.to_csv(
             func_getFileNameAndPathForThisFile("_3_PIT_BEST_RESULT_Details" + ".csv"),
             sep=";", index=False)
 
+        return
+
     if flagWhat == "df_finalInstruction":
         thisDF.to_csv(
             func_getFileNameAndPathForThisFile("_4_PIT_FinalInstruction" + ".csv"),
             sep=";", index=False)
 
-# ######################################################################################################################
+        return
+
+    thisDF.to_csv(
+        func_getFileNameAndPathForThisFile("_someting_" + ".csv"),
+        sep=";", index=True)
+
+
+    # ######################################################################################################################
 def func_appendThisString(
     df_finalInstruction,
     str_thisInstruction
@@ -1429,7 +1492,7 @@ if dict_tasks["task_doThePitAnalysis"]:
     if dict_tasks["task_pit_exportHighRelicToonsNeededForPit"]:
         df_pit_HighGearToonsPerGuildMate.to_csv(
             func_getFileNameAndPathForThisFile("df_pit_HighGearToonsPerGuildMate" + ".csv"),
-            sep=";", index=False)
+            sep=";", index=True)
 
     df_pitTeamOverviewPerGuildMate = func_fillDataframeWithAvailablePitTeams(
         df_pitTeamOverviewPerGuildMate,
@@ -1439,7 +1502,7 @@ if dict_tasks["task_doThePitAnalysis"]:
     if dict_tasks["task_pit_exportPitTeamOverviewPerGuildMate"]:
         df_pitTeamOverviewPerGuildMate.to_csv(
             func_getFileNameAndPathForThisFile("df_pitTeamOverviewPerGuildMate" + ".csv"),
-            sep=";", index=False)
+            sep=";", index=True)
 
     df_SUB_pit_HighGearToonsPerGuildMate = df_pit_HighGearToonsPerGuildMate.copy()
     df_SUB_pitTeamOverviewPerGuildMate = df_pitTeamOverviewPerGuildMate.copy()
@@ -1472,11 +1535,13 @@ if dict_tasks["task_doThePitAnalysis"]:
             # ... stop as soon as enough teams are available to finish the phase
             phaseTag, dict_teamDamageForThisPhase = func_getPhaseTag(thisPhase)
 
+            #region CORE FUNCTION ... create a random sample of guild mates with possible pit teams for that phase
             dict_teamCompostion, damageDoneThisPhase, totalPitTeamsNeededThisPhase = \
                 func_generateNextPitTry(
                     thisPhase, phaseTag,
                     damageDoneThisPhase, dict_teamDamageForThisPhase, df_pitTeamOverviewPerGuildMate
                 )
+            #endregion
 
             totalPitTeamsNeededThisTry+= totalPitTeamsNeededThisPhase
 
