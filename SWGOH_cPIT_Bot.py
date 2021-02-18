@@ -41,8 +41,8 @@ dict_tasks = {
     "task_pit_exportPitTeamOverviewPerGuildMate": 1
 }
 
-useOnlyThisAmountOfGuildMates = 7
-PitTeamCompositionTrys = 10
+useOnlyThisAmountOfGuildMates = 50
+PitTeamCompositionTrys = 2500
 minRelicLevel = 3
 safetyDamageInPercentToCompensateFailedTrys = 10
 
@@ -868,10 +868,10 @@ def func_fillDataframeWithAvailablePitTeams(
 def func_createListWithRandomAllyOrder(
     list_randomAllyOrder
 ):
-    # TODO fix this fucking function
+    # TODO fix this fucking function ... it does not work if the amount of guild mates is less than 50
     keys_list = list(dict_guildMateNamesAndAllyCodes)
-    print("keys_list before random mix in new list: " + str(keys_list))
-    print("len(keys_list) + " + str(len(keys_list)))
+    # print("keys_list before random mix in new list: " + str(keys_list))
+    # print("len(keys_list) + " + str(len(keys_list)))
 
     maxRandomNumberAllowed = useOnlyThisAmountOfGuildMates
     if useOnlyThisAmountOfGuildMates > len(keys_list):
@@ -890,7 +890,7 @@ def func_createListWithRandomAllyOrder(
 
         # print("len(list_randomAllyOrder) " + str(len(list_randomAllyOrder)))
 
-    print("using this guild mate order for the next pit try: " +str(list_randomAllyOrder))
+    # print("using this guild mate order for the next pit try: " +str(list_randomAllyOrder))
 
     return list_randomAllyOrder
 
