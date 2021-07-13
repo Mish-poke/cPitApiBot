@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import numpy as np
+import math
 import os
 import json
 import pandas as pd
@@ -36,20 +38,22 @@ dict_tasks = {
     "task_exportPlayersData": 0,
     "task_exportAllGuildData" : 1,
     "task_ignoreMissingGuildMates": 0,
-    "task_doThePitAnalysis": 1,
+    "task_doThePitAnalysis": 0,#1
     "task_pit_exportHighRelicToonsNeededForPit": 0,
-    "task_pit_exportPitTeamOverviewPerGuildMate": 1
+    "task_pit_exportPitTeamOverviewPerGuildMate": 0,
+    "task_pit_ONLY_redoTheFinalFile": 0#1
 }
 
 useOnlyThisAmountOfGuildMates = 50
-PitTeamCompositionTrys = 2500
-minRelicLevel = 3
+PitTeamCompositionTrys = 15
+minRelicLevel = 1
 safetyDamageInPercentToCompensateFailedTrys = 10
 
 
-allyCodes = [556142852] #836434711
+allyCodes = [264454232] #836434711
 # super STRONG GUild for PIT 967525461
-
+# Yathzee 226779292
+# Tiric Thorn 516614642
 # LoD Angry Anni 244315144 ... die schaffen wohl den Rancor nicht  https://swgoh.gg/g/37150/legends-of-doom/
 # FrankElMas's Profile Rebel Assault ... die schaffen wohl den Rancor nicht 614731935
 # allowishus 556142852
@@ -234,7 +238,7 @@ def func_fillGuildMateDictionary(
     guildMateAllyCode = str(dict_guild[0]['roster'][guileMateKey]['allyCode'])
 
     dict_guildMateNamesAndAllyCodes[guildMateAllyCode] = guildMateName
-    # print(dict_guildMateNamesAndAllyCodes)
+    print("filled this guildMateName into dict_guildMateNamesAndAllyCodes " + guildMateName)
 
 # ######################################################################################################################
 def func_loopGuildRooster(
@@ -249,6 +253,7 @@ def func_loopGuildRooster(
 
     thisGuildMateNumber = 0
     for guileMateKey in range(len(dict_guild[0]['roster'])):
+        print("next guileMateKey " + str(guileMateKey))
         thisGuildMateNumber += 1
 
         func_fillGuildMateDictionary(guileMateKey, dict_guild)
@@ -289,11 +294,12 @@ def func_analyseThisGuildMateData(
                 (dict_tasks["task_exportPlayersData"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
                 (dict_tasks["task_compare_players"] and str(thisAllyCode) == str(guildMateAllyCode)) or \
                 dict_tasks["task_exportAllGuildData"] or \
-                dict_tasks["task_compare_guilds"]
+                dict_tasks["task_compare_guilds"] or \
+                dict_tasks["task_doThePitAnalysis"]
             )
     ):
         guildMateNumber+=1
-        print("### func_analyseThisGuildMateData >>> NEXT Guild Mate ###")
+        print("### func_analyseThisGuildMateData #"+str(guildMateNumber)+" >>> NEXT Guild Mate ###")
         print("#" + str(guildMateNumber) + " " + dict_guild[0]['roster'][guileMateKey]['name'] + " ID: " + str(
             dict_guild[0]['roster'][guileMateKey]['allyCode']))
 
@@ -625,7 +631,6 @@ def func_doAllAroundThisAllyCode(
 
     df_pit_HighGearToonsPerGuildMate = func_prepareDataframeWithAllToons(
         df_pit_HighGearToonsPerGuildMate, dict_guildRooster, thisAllyCode, flag_all, False)
-
     #endregion
 
     # #region FILL dfs with needed data
@@ -800,13 +805,20 @@ def func_getTeamMember(
 def func_thisTeamMateRelicLevelIsSufficient(
     thisToonGearRelicLevel
 ):
-    # print("this toon relic level " + thisToonGearRelicLevel[1:2])
-    if \
-        thisToonGearRelicLevel[:1] == 'R' and \
-        int(thisToonGearRelicLevel[1:2]) >= minRelicLevel:
-        # print("enough relicts @ level: " + thisToonGearRelicLevel[1:2])
+    # print("thisToonGearRelicLevel " + str(thisToonGearRelicLevel))
+    # if thisToonGearRelicLevel == "nan":
+    #     return False
 
-        return True
+    # if np.nan == thisToonGearRelicLevel:
+    #     return False
+
+    thisToonGearRelicLevel = str(thisToonGearRelicLevel)
+
+    if thisToonGearRelicLevel[:1] == 'R':
+        if int(thisToonGearRelicLevel[1:2]) >= minRelicLevel:
+            # print("enough relicts @ level: " + thisToonGearRelicLevel[1:2])
+
+            return True
 
     return False
 
@@ -819,16 +831,17 @@ def func_fillDataframeWithAvailablePitTeams(
     logDetailsIfSquadIsAvailable = False
 
     for thisGuildMate in df_pit_HighGearToonsPerGuildMate:
+        # print("thisGuildMate " + str(thisGuildMate))
         if thisGuildMate in dict_extraColumns:
             continue
 
-        # print("check if pit teams are available for " + thisGuildMate)
         for thisTeam in range(len(dict_cPIT_botTeams)):
             # print("cPIT TEAM: " + dict_cPIT_botTeams[thisTeam]['team'])
             # print(dict_cPIT_botTeams[thisTeam]['teamMember'])
             # print(dict_cPIT_botTeams[thisTeam]['teamMember'][0][teamMember_01])
             # print(dict_cPIT_botTeams[thisTeam]['teamMember'][0][teamMember_02])
             tm1, tm2, tm3, tm4, tm5 = func_getTeamMember(dict_cPIT_botTeams[thisTeam]['teamMember'])
+
             # print("tm1: " + tm1 + " R-Level " + thisGuildMate + ": " +
             #       df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate])
             # print("tm2: " + tm2 + " R-Level " + thisGuildMate + ": " +
@@ -915,6 +928,10 @@ def func_generateNextPitTry(
         # print(dict_guildMateNamesAndAllyCodes[thisGuildMateID])
 
         df_thisGuildMateToons = pd.DataFrame()
+
+        # if thisGuildMateID not in df_pitTeamOverviewPerGuildMate[dict_guildMateNamesAndAllyCodes[thisGuildMateID]].unique():
+        #     print("thisGuildMateID: " + thisGuildMateID + " not available in df_pitTeamOverviewPerGuildMate")
+        #     continue
 
         df_thisGuildMateToons = df_pitTeamOverviewPerGuildMate[
             df_pitTeamOverviewPerGuildMate[dict_guildMateNamesAndAllyCodes[thisGuildMateID]] == 1]
@@ -1019,6 +1036,7 @@ def func_createUniquePitTestID(
 
 # ######################################################################################################################
 def func_createDictWithUniquePitTeamIDs():
+
     for thisTeam in range(len(dict_cPIT_botTeams)):
         dict_uniquePitTeamIDs[
             dict_cPIT_botTeams[thisTeam]['team']] =  dict_cPIT_botTeams[thisTeam]['uniqueTeamID']
@@ -1030,7 +1048,7 @@ def func_createDictWithUniquePitTeamIDs():
     return dict_uniquePitTeamIDs
 
 # ######################################################################################################################
-def func_getPhaseTag(
+def func_getPhaseTagAndDictWithDamageForThisPhase(
     thisPhase
 ):
     if thisPhase == 1:
@@ -1064,7 +1082,8 @@ def func_getVideoDictThisPhase(
 def func_createDictWithAverageDamagePerPhasePerTeam():
     thisPhase = 1
     while thisPhase <= 4:
-        phaseTag, dict_toBeUsed = func_getPhaseTag(thisPhase)
+        phaseTag, dict_toBeUsed = func_getPhaseTagAndDictWithDamageForThisPhase(thisPhase)
+
         for thisTeam in range(len(dict_cPIT_botTeams)):
             # print("DAMAGE FOR TEAM " + str(dict_cPIT_botTeams[thisTeam]['team']) +
             #       " in phase " + phaseTag + " = " +
@@ -1237,12 +1256,6 @@ def func_updateHighGearToonsPerGuildMate(
                     dict_cPIT_botTeams[thisTeam]['teamMember']
                 )
 
-                # print("tm1: " + tm1)
-                # print("tm2: " + tm2)
-                # print("tm3: " + tm3)
-                # print("tm4: " + tm4)
-                # print("tm5: " + tm5)
-
                 df_pit_HighGearToonsPerGuildMate.loc[tm1, thisGuildMate] = "USED"
                 df_pit_HighGearToonsPerGuildMate.loc[tm2, thisGuildMate] = "USED"
                 df_pit_HighGearToonsPerGuildMate.loc[tm3, thisGuildMate] = "USED"
@@ -1306,8 +1319,29 @@ def func_exportThisFileIntoCSV(
         func_getFileNameAndPathForThisFile("_someting_" + ".csv"),
         sep=";", index=True)
 
+# ######################################################################################################################
+def func_readAllPitFilesAsTheyAre(
+):
+    # df_thisCovidData = pd.read_csv(
+    #     sourceDataPathInTheInternet,
+    #     delimiter=thisDelimiter, decimal=thisDecimal, nrows=amountOfRows, low_memory=False, error_bad_lines=False
+    # )
+    #
+    df_resultSummary = pd.read_csv(
+        func_getFileNameAndPathForThisFile("_1_PIT_RESULT_Overview" + ".csv"),
+        sep=";")
 
-    # ######################################################################################################################
+    df_resultAllDetails = pd.read_csv(
+        func_getFileNameAndPathForThisFile("_2_PIT_RESULT_DETAILs" + ".csv"),
+        sep=";")
+
+    df_bestResult = pd.read_csv(
+        func_getFileNameAndPathForThisFile("_3_PIT_BEST_RESULT_Details" + ".csv"),
+        sep=";")
+
+    return df_resultSummary, df_resultAllDetails, df_bestResult, df_finalInstruction
+
+# ######################################################################################################################
 def func_appendThisString(
     df_finalInstruction,
     str_thisInstruction
@@ -1379,12 +1413,19 @@ def func_createFinalResult(
 
         str_thisInstruction = "### INSTRUCTION for PIT PHASE " + str(thisPhase) + " ###########################"
 
+        videoDictElementThisPhase = func_getVideoDictThisPhase(thisPhase)
+
+        phaseTag, dict_teamDamageForThisPhase = func_getPhaseTagAndDictWithDamageForThisPhase(thisPhase)
+
+        print("### dict_teamDamageForThisPhase ###")
+        print(dict_teamDamageForThisPhase)
+
         df_finalInstruction = func_appendThisString(df_finalInstruction, str_thisInstruction)
 
         for thisPitTeam in df_bestResult[flag_pitTrysDetail_PitTeam].unique():
             print("\n### START with that team: " + thisPitTeam)
 
-            videoDictElementThisPhase = func_getVideoDictThisPhase(thisPhase)
+            print("Damage this Team this Phase:" +  str(dict_teamDamageForThisPhase[thisPitTeam]) )
 
             for thisTeamPitTeam in range(len(dict_cPIT_botTeams)):
                 if thisPitTeam == dict_cPIT_botTeams[thisTeamPitTeam]['team']:
@@ -1418,8 +1459,6 @@ def func_createFinalResult(
 
             str_thisInstruction = (">>> TARGET DAMAGE: " + str(dict_teamDamageForThisPhase[thisPitTeam]) + "% <<<")
             df_finalInstruction = func_appendThisString(df_finalInstruction, str_thisInstruction)
-
-
 
             guildMateString = "# Please use this team \n" + guildMateString
             df_finalInstruction = func_appendThisString(df_finalInstruction, guildMateString)
@@ -1474,9 +1513,26 @@ for thisAllyCode in allyCodes:
     # print("### dict_guildMateNamesAndAllyCodes ###")
     # print(dict_guildMateNamesAndAllyCodes)
 
+# region read existing analysis data and redo the final instruction
+if dict_tasks["task_pit_ONLY_redoTheFinalFile"]:
+    print("YEA task_pit_ONLY_redoTheFinalFile")
+    func_createDictWithAverageDamagePerPhasePerTeam()
+
+    df_resultAllDetails, df_resultSummary, df_bestResult, df_finalInstruction = func_createEmpyDataframeForAllResults()
+
+    df_resultSummary, df_resultAllDetails, df_bestResult, df_finalInstruction = func_readAllPitFilesAsTheyAre()
+
+    df_finalInstruction = func_createFinalResult(
+        df_resultSummary, df_resultAllDetails, df_bestResult, df_finalInstruction)
+
+    func_exportThisFileIntoCSV(df_finalInstruction, "df_finalInstruction")
+
+    exit()
+# endregion
 
 #region CORE ALGO ... create random pit team compositions to finish that beast
 if dict_tasks["task_doThePitAnalysis"]:
+    # print("### START DO THE PIT ANALYSIS ###")
     exportSubDataframesToCheckAlgo = False
 
     df_resultAllDetails, df_resultSummary, df_bestResult, df_finalInstruction = func_createEmpyDataframeForAllResults()
@@ -1533,7 +1589,7 @@ if dict_tasks["task_doThePitAnalysis"]:
 
             # STEP1: loop through all available PIT Teams per guild mate and create unique pit team composition
             # ... stop as soon as enough teams are available to finish the phase
-            phaseTag, dict_teamDamageForThisPhase = func_getPhaseTag(thisPhase)
+            phaseTag, dict_teamDamageForThisPhase = func_getPhaseTagAndDictWithDamageForThisPhase(thisPhase)
 
             #region CORE FUNCTION ... create a random sample of guild mates with possible pit teams for that phase
             dict_teamCompostion, damageDoneThisPhase, totalPitTeamsNeededThisPhase = \
@@ -1630,9 +1686,6 @@ if dict_tasks["task_doThePitAnalysis"]:
     func_exportThisFileIntoCSV(df_finalInstruction, "df_finalInstruction")
 
 #print(df_guildMasterFile.loc['General Kenobi', 'Daeshara'])
-
-print("dict_guildMateNamesAndAllyCodes")
-print(dict_guildMateNamesAndAllyCodes)
 
 if len(allyCodes) > 1:
     if dict_tasks["task_compare_guilds"] or dict_tasks["task_compare_players"]:

@@ -379,66 +379,85 @@ listAllToons = [
     'Kuiil',
     'IG-11',
     'Gamorrean Guard',
-    'Sith Eternal Emperor'
+    'Sith Eternal Emperor',
+    'Bo-Katan Kryze',
+    'Echo',
+    'Hunter',
+    'Tech',
+    'Wrecker',
+    'Ki-Adi-Mundi',
+    'Dark Trooper'
+
 ]
 
 MASTER_createFreshGuildDict = False
 dict_Spartas = {
-    'Leonidas':                     '1',
-    'Kieron Bucannen':              '1',
-    'Daeshara':                     '1',
-    'Sternocleidomastoideius':      '1',
-    'Lessaya':                      '1',
-    'macray':                       '1',
-    'Trapola Morte':                '1',
-    'Deathwolffs':                  '1',
-    'SoP Leonidas Guardians':       '1',
-    'Paladin':                      '1',
-    'Elite':                        '1',
-    'Ghostkiller Army':             '1',
-    'Ede':                          '1',
-    'Anubis':                       '1',
-    'Mysako':                       '1',
-    'Soldier of Phalanx Dilios':    '1',
-    'Tauii':                        '1',
-    'Bon Rick':                     '1',
-    'allowishus':                   '1',
-    'Thobi':                        '1',
-    'Huaoban':                      '1',
-    'moonlightx':                   '1',
-    'Großmoff Vince':               '1',
-    'LittleRock':                   '1',
-    'Ursprung89':                   '1',
-    'Holli':                        '1',
-    'Aironstone':                   '1',
-    'AndyFazer':                    '1',
-    'TwinStar':                     '1',
-    'Mishpoke':                     '1',
-    'Soldier of Phalanx Stelios':   '1',
-    'DΛrth JΛkz':                   '1',
-    'Lieken Urkorn':                '1',
-    'VΛderSeinVΛdder':              '1',
-    'jads':                         '1',
-    'meister yoguhrt':              '1',
-    'Werwolf':                      '1',
-    'DarthRevan19':                 '1',
-    'todesstern2':                  '1',
-    'Masterofd':                    '1',
-    'EatTheWeak':                   '1',
-    'DiGi':                         '1',
-    'JariLi':                       '1',
-    'TommyReini':                   '1',
-    'GeneralSkywalker':             '1'
+'Mini Leonidas': '1',
+'Sternocleidomastoideius': '1',
+'Lessaya II': '1',
+'Trapola Morte': '1',
+'MINI Leonidas Guardians': '1',
+'Paladin': '1',
+'Elite': '1',
+'Ghostkiller Army': '1',
+'Ede': '1',
+'Mysako': '1',
+'Soldier of Phalanx Dilios': '1',
+'Tauii': '1',
+'Bon Rick': '1',
+'allowishus': '1',
+'MINIThobi': '1',
+'Huaoban': '1',
+'moonlightx': '1',
+'Großmoff Vince': '1',
+'LittleRock': '1',
+'Ursprung89': '1',
+'MINI Holli': '1',
+'Aironstone': '1',
+'AndyFazer': '1',
+'TwinStar': '1',
+'MINI Mishpoke': '1',
+'DΛrth JΛkz': '1',
+'Lieken Urkorn': '1',
+'VΛderSeinVΛdder': '1',
+'jads': '1',
+'mini meister yoguhrt': '1',
+'Werwolf': '1',
+'DarthRevan19': '1',
+'todesstern2': '1',
+'Masterofd': '1',
+'EatTheWeak': '1',
+'DiGi': '1',
+'MINI JariLi': '1',
+'TommyReini': '1',
+'Kalahaza': '1',
+'ChaozPlayerHd': '1',
+'MINI Maath Faselli': '1',
+'MINI Grey Eminxnce': '1',
+'Todtstelzer': '1',
+'ALinza': '1',
+'InVino': '1',
+'Mokka': '1',
+'Veritas': '1',
+'Soldier of Phalanx Stelios': '1',
+'SoP Alpha Xentaurus': '1',
+'MINI Datsik': '1',
  }
 
 list_gls = [
 'Jedi Master Luke Skywalker',
 'Rey',
 'Supreme Leader Kylo Ren',
-'Sith Eternal Emperor'
+'Sith Eternal Emperor',
+'Jedi Master Kenobi'
 ]
 
 list_criticalToons = [
+'Jedi Master Luke Skywalker',
+'Rey',
+'Supreme Leader Kylo Ren',
+'Sith Eternal Emperor',
+'Jedi Master Kenobi',
 'Darth Malak',
 'Darth Revan',
 'Bastila Shan (Fallen)',
@@ -446,13 +465,20 @@ list_criticalToons = [
 'Padmé Amidala',
 'General Skywalker',
 'General Grievous',
-'Enfys Nest',
 'Commander Luke Skywalker',
+'Ki-Adi-Mundi',
 'Wat Tambor',
+'The Armorer',
 'Darth Traya',
 'Geonosian Brood Alpha',
+'Moff Gideon',
 'Negotiator',
-'Malevolence'
+'Malevolence',
+'Shaak Ti',
+'CT-7567 "Rex"',
+'ARC Trooper',
+'CT-21-0408 "Echo"',
+'CT-5555 "Fives"',
 ]
 
 dict_cPIT_botTeams = [
@@ -497,7 +523,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 3, 'p2': 2, 'p3': 2, 'p4': 1.5}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 1.5}
         ],
     },
     {
@@ -519,7 +545,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 3, 'p2': 2, 'p3': 2, 'p4': 1.5}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 1.5}
         ],
     },
     {
@@ -603,7 +629,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 12, 'p2': 8, 'p3': 8, 'p4': 3}
+            {'p1': 12, 'p2': 5, 'p3': 5, 'p4': 3}
         ],
     },
     {
@@ -624,7 +650,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 11, 'p2': 8, 'p3': 8, 'p4': 3}
+            {'p1': 11, 'p2': 5, 'p3': 5, 'p4': 3}
         ],
     },
     {
@@ -645,7 +671,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 5}
+            {'p1': 2, 'p2': 2, 'p3': 2, 'p4': 5}
         ],
     },
     {
@@ -771,7 +797,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 15, 'p2': 8, 'p3': 8, 'p4': 2}
+            {'p1': 15, 'p2': 5, 'p3': 5, 'p4': 2}
         ],
     },
     {
@@ -792,7 +818,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 5, 'p2': 8, 'p3': 8, 'p4': 3}
+            {'p1': 3, 'p2': 8, 'p3': 8, 'p4': 3}
         ],
     },
     {
@@ -834,7 +860,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 8, 'p2': 10, 'p3': 8, 'p4': 8}
+            {'p1': 5, 'p2': 10, 'p3': 5, 'p4': 1}
         ],
     },
     {
@@ -855,7 +881,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-                {'p1': 15, 'p2': 8, 'p3': 8, 'p4': 2}
+                {'p1': 15, 'p2': 7, 'p3': 7, 'p4': 2}
         ],
     },
     {
@@ -876,7 +902,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 2.5, 'p2': 2.5, 'p3': 2.5, 'p4': 4}
+            {'p1': 2, 'p2': 2, 'p3': 2, 'p4': 4}
         ],
     },
     {
@@ -897,7 +923,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 6}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 6}
         ],
     },
     {
@@ -943,7 +969,7 @@ dict_cPIT_botTeams = [
         ],
     },
     {
-        'team': 'xxx',
+        'team': 'JKL_JML_GK_JKA',
         'uniqueTeamID': '25',
         'source_p1': '',
         'source_p2': 'https://www.youtube.com/watch?v=_mYJzutM1k0&ab_channel=Bulldog1205',
@@ -960,7 +986,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 7, 'p2': 9, 'p3': 7, 'p4': 7}
+            {'p1': 5, 'p2': 9, 'p3': 5, 'p4': 2}
         ],
     },
     {
@@ -1002,7 +1028,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 4, 'p2': 4, 'p3': 4, 'p4': 8}
+            {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 8}
         ],
     },
     {
@@ -1023,7 +1049,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 7, 'p2': 9, 'p3': 9, 'p4': 7}
+            {'p1': 4, 'p2': 9, 'p3': 9, 'p4': 2}
         ],
     },
     {
@@ -1149,7 +1175,7 @@ dict_cPIT_botTeams = [
         ],
         'averageDamagePerPhase':
         [
-            {'p1': 2, 'p2': 5, 'p3': 5, 'p4': 2}
+            {'p1': 2, 'p2': 5, 'p3': 5, 'p4': 1}
         ],
     },
     {
@@ -1213,6 +1239,27 @@ dict_cPIT_botTeams = [
         'averageDamagePerPhase':
         [
             {'p1': 3, 'p2': 3, 'p3': 3, 'p4': 5}
+        ],
+    },
+    {
+        'team': 'JKL_JML_HY',
+        'uniqueTeamID': '25',
+        'source_p1': '',
+        'source_p2': 'https://www.youtube.com/watch?v=_mYJzutM1k0&ab_channel=Bulldog1205',
+        'source_p3': '',
+        'source_p4': '',
+        'teamMember': [
+            {
+                'tm1': 'Jedi Knight Luke Skywalker',
+                'tm2': 'Jedi Master Luke Skywalker',
+                'tm3': 'General Skywalker',
+                'tm4': 'Jedi Knight Anakin',
+                'tm5': 'Hermit Yoda'
+            }
+        ],
+        'averageDamagePerPhase':
+        [
+            {'p1': 5, 'p2': 10, 'p3': 5, 'p4': 2}
         ],
     }
 
