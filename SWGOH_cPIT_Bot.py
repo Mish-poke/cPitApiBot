@@ -18,6 +18,7 @@ exportDataframesInCSV = False
 
 flag_all = 'all toons'
 flag_gls = 'gls only'
+flag_pit_vader_p1 = 'vader pit p1 only'
 flag_critical = 'important toon only'
 flag_pitRaidOverview = 'df with pit teams per guild mate'
 
@@ -35,7 +36,7 @@ dict_extraColumns = {
 dict_tasks = {
     "task_compare_guilds": 0,
     "task_compare_players": 0,
-    "task_exportPlayersData": 0,
+    "task_exportPlayersData": 1,
     "task_exportAllGuildData" : 1,
     "task_ignoreMissingGuildMates": 0,
     "task_doThePitAnalysis": 0,#1
@@ -50,7 +51,7 @@ minRelicLevel = 1
 safetyDamageInPercentToCompensateFailedTrys = 10
 
 
-allyCodes = [264454232] #836434711
+allyCodes = [568337336] #836434711 568337336
 # super STRONG GUild for PIT 967525461
 # Yathzee 226779292
 # Tiric Thorn 516614642
@@ -245,6 +246,7 @@ def func_loopGuildRooster(
     dict_guild,
     df_guildRooster,
     df_glsOnly,
+    df_cpitVaderP1_Only,
     df_criticalToons,
     df_pit_HighGearToonsPerGuildMate,
     thisAllyCode
@@ -259,17 +261,18 @@ def func_loopGuildRooster(
         func_fillGuildMateDictionary(guileMateKey, dict_guild)
 
         if thisGuildMateNumber <= useOnlyThisAmountOfGuildMates:
-            df_guildRooster, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate = func_analyseThisGuildMateData(
+            df_guildRooster, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons, df_pit_HighGearToonsPerGuildMate = func_analyseThisGuildMateData(
                 dict_guild,
                 guileMateKey,
                 df_guildRooster,
                 df_glsOnly,
+                df_cpitVaderP1_Only,
                 df_criticalToons,
                 df_pit_HighGearToonsPerGuildMate,
                 thisAllyCode
             )
 
-    return df_guildRooster, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate
+    return df_guildRooster, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons, df_pit_HighGearToonsPerGuildMate
 
 # ######################################################################################################################
 def func_analyseThisGuildMateData(
@@ -277,6 +280,7 @@ def func_analyseThisGuildMateData(
     guileMateKey,
     df_guildRooster,
     df_glsOnly,
+    df_cpitVaderP1_Only,
     df_criticalToons,
     df_pit_HighGearToonsPerGuildMate,
     thisAllyCode
@@ -308,6 +312,7 @@ def func_analyseThisGuildMateData(
 
         dict_GuildMateDetails = client.fetchPlayers(int(dict_guild[0]['roster'][guileMateKey]['allyCode']))
 
+        print(" >>> dict_GuildMateDetails <<<")
         # print(dict_GuildMateDetails)
         # print(dict_GuildMateDetails[0]['roster'][0]['nameKey'])
         cntR12 = 0
@@ -343,6 +348,7 @@ def func_analyseThisGuildMateData(
                         thisExtraColumn,
                         False)
 
+                #region fill df for gl's
                 if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_gls:
                     df_glsOnly = func_fillDetailsForThisDataframe(
                         df_glsOnly,
@@ -352,7 +358,23 @@ def func_analyseThisGuildMateData(
                         thisGearOrRelicLevel,
                         thisExtraColumn,
                         True)
+                #endregion
 
+                #region fill df for vader p1 teams
+                if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_cpit_VaderTeam_P1:
+                    if thisGearOrRelicLevel[:1] == "R":
+                        if int(thisGearOrRelicLevel[1:2]) >= 5:
+                            df_cpitVaderP1_Only = func_fillDetailsForThisDataframe(
+                                df_cpitVaderP1_Only,
+                                dict_GuildMateDetails,
+                                guildMateName,
+                                thisUnit,
+                                thisGearOrRelicLevel,
+                                thisExtraColumn,
+                                False)
+                #endregion
+
+                #region fill df for critical toons
                 if dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'] in list_criticalToons:
                     df_criticalToons = func_fillDetailsForThisDataframe(
                         df_criticalToons,
@@ -362,6 +384,7 @@ def func_analyseThisGuildMateData(
                         thisGearOrRelicLevel,
                         thisExtraColumn,
                         True)
+                #endregion
 
                 cntR12, cntR13 = func_getHighGearCount(
                     dict_GuildMateDetails, thisUnit,
@@ -377,7 +400,36 @@ def func_analyseThisGuildMateData(
         print(
             dict_guild[0]['roster'][guileMateKey]['name'] + " >>> R12 " + str(cntR12) + " // R13  " + str(cntR13) + " ")
 
-    return df_guildRooster, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate
+        # print("############################")
+        # print(df_cpitVaderP1_Only)
+        # print("df_cpitVaderP1_Only VADER")
+        # print(df_cpitVaderP1_Only.loc["Darth Vader", guildMateName])
+
+        # for ap in df_cpitVaderP1_Only.index:
+        #     print(" R LEVEL " + df_cpitVaderP1_Only.loc[ap, guildMateName])
+        #     print()
+        #     if df_cpitVaderP1_Only.loc[ap, guildMateName][:1] == "R":
+        #         cntOfToonsWithoutProperRelicLevel += 1
+
+        if \
+            df_cpitVaderP1_Only.loc["Darth Vader", guildMateName][:1] == "R" and \
+            df_cpitVaderP1_Only.loc["Wat Tambor", guildMateName][:1] == "R" and \
+            df_cpitVaderP1_Only.loc["Kylo Ren (Unmasked)", guildMateName][:1] == "R" and \
+            df_cpitVaderP1_Only.loc["C-3PO", guildMateName][:1] == "R" and \
+            (
+                df_cpitVaderP1_Only.loc['BB-8', guildMateName][:1] == "R" or \
+                df_cpitVaderP1_Only.loc['Shaak Ti', guildMateName][:1] == "R"
+            ):
+            print("nice vader team for guild mate " + guildMateName)
+        else:
+            print("damn, lets drop this guild mate " + guildMateName)
+            print(df_cpitVaderP1_Only)
+            df_cpitVaderP1_Only = \
+                df_cpitVaderP1_Only.drop(
+                    guildMateName, inplace=False, axis=1
+                )
+
+    return df_guildRooster, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons, df_pit_HighGearToonsPerGuildMate
 
 # ######################################################################################################################
 def func_getGearLevelOrRelicLevel(
@@ -439,7 +491,8 @@ def func_fillDetailsForThisDataframe(
     #region fill Main Rooster DF
     thisDF.loc[
         dict_GuildMateDetails[0]['roster'][thisUnit]['nameKey'],
-        guildMateName] = thisGearOrRelicLevel
+        guildMateName
+    ] = thisGearOrRelicLevel
 
     if addExtraColumn:
         if thisGearOrRelicLevel[:1] == "R":
@@ -492,6 +545,9 @@ def func_prepareDataframeWithAllToons(
 
     if flag_whatDF == flag_critical:
         thisDF = pd.DataFrame(index=list_criticalToons)
+
+    if flag_whatDF == flag_pit_vader_p1:
+        thisDF = pd.DataFrame(index=list_cpit_VaderTeam_P1)
 
     for guileMateKey in range(len(dict_guild[0]['roster'])):
         if \
@@ -549,6 +605,7 @@ def func_exportGuildDataIntoFiles(
     thisAllyCode,
     df_guildMasterFile,
     df_glsOnly,
+    df_cpitVaderP1_Only,
     df_criticalToons
 ):
     if exportDataframesInCSV:
@@ -558,6 +615,10 @@ def func_exportGuildDataIntoFiles(
 
         df_glsOnly.to_csv(
             func_getFileNameAndPathForThisFile("GUILD_ROOSTER_GLs_"+guildName+".csv")
+            , sep=";", index=False)
+
+        df_cpitVaderP1_Only.to_csv(
+            func_getFileNameAndPathForThisFile("GUILD_ROOSTER_cPIT_VADER_P1_"+guildName+".csv")
             , sep=";", index=False)
 
         df_criticalToons.to_csv(
@@ -577,6 +638,7 @@ def func_exportGuildDataIntoFiles(
     with pd.ExcelWriter(fileName) as writer:
         df_guildMasterFile.to_excel(writer, sheet_name='GUILD_ALL')
         df_glsOnly.to_excel(writer, sheet_name='GUILD_GLs')
+        df_cpitVaderP1_Only.to_excel(writer, sheet_name='GUILD_cPIT_VADER_P1')
         df_criticalToons.to_excel(writer, sheet_name='ImportantToons')
 
 
@@ -608,6 +670,7 @@ def func_doAllAroundThisAllyCode(
     thisAllyCode,
     df_guildMasterFile,
     df_glsOnly,
+    df_cpitVaderP1_Only,
     df_criticalToons,
     df_pitTeamOverviewPerGuildMate,
     df_pit_HighGearToonsPerGuildMate
@@ -618,10 +681,11 @@ def func_doAllAroundThisAllyCode(
     df_guildMasterFile = func_prepareDataframeWithAllToons(
         df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_all, False)
 
-    # df_pitTeamOverviewPerGuildMate = df_guildMasterFile.copy()
-
     df_glsOnly = func_prepareDataframeWithAllToons(
         df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_gls, False)
+
+    df_cpitVaderP1_Only = func_prepareDataframeWithAllToons(
+        df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_pit_vader_p1, False)
 
     df_criticalToons = func_prepareDataframeWithAllToons(
         df_guildMasterFile, dict_guildRooster, thisAllyCode, flag_critical, False)
@@ -634,23 +698,28 @@ def func_doAllAroundThisAllyCode(
     #endregion
 
     # #region FILL dfs with needed data
-    df_guildMasterFile, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate = func_loopGuildRooster(
-        dict_guildRooster, df_guildMasterFile, df_glsOnly, df_criticalToons, df_pit_HighGearToonsPerGuildMate, thisAllyCode)
+    df_guildMasterFile, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons, df_pit_HighGearToonsPerGuildMate = func_loopGuildRooster(
+        dict_guildRooster, df_guildMasterFile, df_glsOnly,
+        df_cpitVaderP1_Only, df_criticalToons, df_pit_HighGearToonsPerGuildMate, thisAllyCode
+    )
     # #endregion
 
     df_guildMasterFile = func_fillMissingColumnsToHarmonizeLayout(df_guildMasterFile)
     df_glsOnly = func_fillMissingColumnsToHarmonizeLayout(df_glsOnly)
+    df_cpitVaderP1_Only = func_fillMissingColumnsToHarmonizeLayout(df_cpitVaderP1_Only)
     df_criticalToons = func_fillMissingColumnsToHarmonizeLayout(df_criticalToons)
+
 
     if dict_tasks["task_exportPlayersData"] or dict_tasks["task_exportAllGuildData"]:
         func_exportGuildDataIntoFiles(
             guildName, dict_guildRooster, thisAllyCode,
-            df_guildMasterFile, df_glsOnly, df_criticalToons
+            df_guildMasterFile, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons
         )
 
     return \
         df_guildMasterFile, \
         df_glsOnly, \
+        df_cpitVaderP1_Only, \
         df_criticalToons, \
         df_pitTeamOverviewPerGuildMate, \
         df_pit_HighGearToonsPerGuildMate
@@ -777,6 +846,7 @@ def func_createListOfPitTeams(
 def func_createMainDFs():
     df_guildMasterFile = pd.DataFrame()
     df_glsOnly = pd.DataFrame()
+    df_cpitVaderP1_Only = pd.DataFrame()
     df_criticalToons = pd.DataFrame()
 
     df_pitTeamOverviewPerGuildMate = pd.DataFrame()
@@ -786,7 +856,7 @@ def func_createMainDFs():
     df_SUB_pit_HighGearToonsPerGuildMate = pd.DataFrame()
 
     return \
-        df_guildMasterFile, df_glsOnly, df_criticalToons, \
+        df_guildMasterFile, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons, \
         df_pitTeamOverviewPerGuildMate, df_pit_HighGearToonsPerGuildMate, \
         df_SUB_pitTeamOverviewPerGuildMate, df_SUB_pit_HighGearToonsPerGuildMate
 
@@ -1481,10 +1551,11 @@ file_dir = os.path.dirname(os.path.abspath(__file__))
 
 listOf_guildMasterFile = list()
 listOf_glsOnly = list()
+listOf_cpitVaderP1 = list()
 listOf_criticalToons = list()
 listOf_allPossiblePitTeams = list()
 
-df_guildMasterFile, df_glsOnly, df_criticalToons, \
+df_guildMasterFile, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons, \
 df_pitTeamOverviewPerGuildMate, df_pit_HighGearToonsPerGuildMate, \
 df_SUB_pitTeamOverviewPerGuildMate, df_SUB_pit_HighGearToonsPerGuildMate = func_createMainDFs()
 
@@ -1497,17 +1568,19 @@ if len(allyCodes) > 1:
 
 for thisAllyCode in allyCodes:
     print("### NEXT ALLY CODE: " + str(thisAllyCode))
-    df_guildMasterFile, df_glsOnly, df_criticalToons, df_pitTeamOverviewPerGuildMate, df_pit_HighGearToonsPerGuildMate = \
+    df_guildMasterFile, df_glsOnly, df_cpitVaderP1_Only, df_criticalToons, df_pitTeamOverviewPerGuildMate, df_pit_HighGearToonsPerGuildMate = \
         func_doAllAroundThisAllyCode(
             thisAllyCode,
             df_guildMasterFile,
             df_glsOnly,
+            df_cpitVaderP1_Only,
             df_criticalToons,
             df_pitTeamOverviewPerGuildMate,
             df_pit_HighGearToonsPerGuildMate)
 
     listOf_guildMasterFile.append(df_guildMasterFile)
     listOf_glsOnly.append(df_glsOnly)
+    listOf_cpitVaderP1.append(df_cpitVaderP1_Only)
     listOf_criticalToons.append(df_criticalToons)
 
     # print("### dict_guildMateNamesAndAllyCodes ###")
@@ -1690,5 +1763,6 @@ if dict_tasks["task_doThePitAnalysis"]:
 if len(allyCodes) > 1:
     if dict_tasks["task_compare_guilds"] or dict_tasks["task_compare_players"]:
         func_letsCompareTheFinalDatasets(
-            listOf_guildMasterFile, listOf_glsOnly, listOf_criticalToons)
+            listOf_guildMasterFile, listOf_glsOnly, listOf_criticalToons
+        )
 
